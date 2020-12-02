@@ -125,11 +125,13 @@ function possibleMoves(board, pieceInfo){
 		//left diagonal
 		//right diagonal
 		if(pieceInfo.color == "white"){
-			if(getPiece(board, piece.x, piece.y+1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y+1}); }
+			if(getPiece(board, piece.x, piece.y+1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y+1}); 
+				if(piece.y == 1 && getPiece(board, piece.x, piece.y+2) === undefined){possibilities.push({"x": piece.x, "y": piece.y+2});}}
 			if(getPiece(board, piece.x+1, piece.y+1) !== undefined){ possibilities.push({"x": piece.x+1, "y": piece.y+1}); }
 			if(getPiece(board, piece.x-1, piece.y+1) !== undefined){ possibilities.push({"x": piece.x-1, "y": piece.y+1}); }
 		} else if(pieceInfo.color == "black"){
-			if(getPiece(board, piece.x, piece.y-1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y-1}); }
+			if(getPiece(board, piece.x, piece.y-1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y-1}); 
+				if(piece.y == 6 && getPiece(board, piece.x, piece.y-2) === undefined){possibilities.push({"x": piece.x, "y": piece.y-2});}}
 			if(getPiece(board, piece.x+1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x+1, "y": piece.y-1}); }
 			if(getPiece(board, piece.x-1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x-1, "y": piece.y-1}); }
 		}
