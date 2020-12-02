@@ -15,7 +15,6 @@ function Clear(){
 	}
 }
 
-Clear();
 
 function RenderBoard(board){
 	Clear();
@@ -70,7 +69,7 @@ const Pieces =  {
 const PieceNames = {
 	"Ki": Pieces.King,
 	"Qu": Pieces.Queen,
-	"Bi": Pieces.Bisop,
+	"Bi": Pieces.Bishop,
 	"Kn": Pieces.Knight,
 	"Ro": Pieces.Rook,
 	"Pa": Pieces.Pawn,
@@ -109,7 +108,7 @@ function getPiece(board, px, py){
 }
 
 function inBounds(x, y){
-	if(x>0 && x<7 && y>0 && y<7){
+	if(x>=0 && x<=7 && y>=0 && y<=7){
 		return true;
 	}
 
@@ -142,7 +141,7 @@ function possibleMoves(board, pieceInfo){
 			let x = piece.x + pieceType.Moves[i].x;
 			let y = piece.y + pieceType.Moves[i].y;
 			if(!inBounds(x, y)){ continue; }
-			if(getPiece(board, x, y) === undefined){ continue; }
+			//if(getPiece(board, x, y) === undefined){ continue; }
 			possibilities.push({"x": x, "y": y});
 		}
 
@@ -150,9 +149,9 @@ function possibleMoves(board, pieceInfo){
 	}
 
 	if(piece.name == "Ki"){
-		for(let i=0; i<piece.Moves.length; i++){
-			let x = piece.x+Moves[i].x;
-			let y = piece.y+Moves[i].y;
+		for(let i=0; i<pieceType.Moves.length; i++){
+			let x = piece.x+pieceType.Moves[i].x;
+			let y = piece.y+pieceType.Moves[i].y;
 			if(inBounds(x, y)){ possibilities.push({"x": x, "y": y});}
 		}
 	}
@@ -243,8 +242,10 @@ function copyBoard(board){
 
 function MakeMove(board, x1, y1, x2, y2){
 // if(!Possible()){ return board; }
+	if(x1 < 0){ return undefined;}
 	let newBoard = copyBoard(board);
 	pieceInfo = getPiece(newBoard, x1, y1);
+	if(pieceInfo == undefined){return undefined; }
 	if(board.turn == "white" && pieceInfo.color == "black"){ return undefined; }
 	if(board.turn == "black" && pieceInfo.color == "white"){ return undefined; }
 	if(Possible(board, {"p1": {"x": x1, "y": y1}, "p2": {"x": x2, "y": y2}})){
@@ -253,4 +254,32 @@ function MakeMove(board, x1, y1, x2, y2){
 		newBoard.turn = (newBoard.turn == "white") ? "black" : "white"; 
 		return newBoard;
 	}
+
+	return undefined;
+}
+
+
+let selectedSquare = {"x": 0, "y": 0};
+let currentBoard = startingBoard;
+
+RenderBoard(currentBoard);
+
+canvas.onclick = function(evt){
+	let clickOffset = canvas.getBoundingClientRect();
+	let x = Math.floor((event.clientX - clickOffset.left)/(canvas.width/8));
+    let y = Math.floor((event.clientY - clickOffset.top)/(canvas.height/8));
+    
+    let newBoard = MakeMove(currentBoard, selectedSquare.x, selectedSquare.y, x, y);
+    console.log("x "+x +" y "+y)
+
+    if(newBoard == undefined){
+    	selectedSquare.x = x;
+    	selectedSquare.y = y;
+    	return;
+    }
+
+    currentBoard = newBoard;
+    selectedSquare.x = -1;
+
+    RenderBoard(currentBoard);
 }
