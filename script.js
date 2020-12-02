@@ -1,11 +1,14 @@
 var canvas = document.getElementById("ChessBoard");
 var context = canvas.getContext("2d");
-
-function Clear(board){
+var chessImg = new Image();
+chessImg.src = "chessSpritePng.png"
+chessImg.onload = function(){}
+let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
+function Clear(){
 	let squareWidth = canvas.width / 8;
 	for(let i=0; i<8; i++){
 		for(let j=0; j<8; j++){
-			color = ((i+j+1)%2 == 0) ? "grey":"black";
+			color = ((i+j+1)%2 == 0) ? "grey":"brown";
 			context.fillStyle = color;
 			context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
 		}
@@ -15,11 +18,21 @@ function Clear(board){
 Clear();
 
 function RenderBoard(board){
-	//Clear(board);
-
-	//render browm and white squares
-
-	//render chess pieces
+	Clear();
+	for(let i=0; i<board.white.length; i++){
+		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
+		console.log(clipData);
+		//img, sx, sy, sw, sh, x, y, width, height
+		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+							canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
+	}
+	for(let i=0; i<board.black.length; i++){
+		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "Black")[0];
+		console.log(clipData);
+		//img, sx, sy, sw, sh, x, y, width, height
+		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+							canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
+	}
 }
 
 
