@@ -167,6 +167,7 @@ function possibleMoves(board, pieceInfo){
 				x+=pieceType.Moves[i].x;
 				y+=pieceType.Moves[i].y;
 				if(getPiece(board, x, y) !== undefined){
+					possibilities.push({"x": x, "y": y});
 					break;
 				}
 				possibilities.push({"x": x, "y": y});
@@ -178,11 +179,13 @@ function possibleMoves(board, pieceInfo){
 }
 
 //tells if white or black is in check
-function InCheck(board){
-	let blackKing = board["black"].filter(x => x.name == "Ki")[0];
-	let whiteKing = board["white"].filter(x => x.name == "Ki")[0];
-	for(let i=0; i<board["white"].length; i++){
-		let piece = board["white"][i];
+function inCheck(board){
+	let blackKing = board.black.filter(x => x.name == "Ki")[0];
+	let whiteKing = board.white.filter(x => x.name == "Ki")[0];
+	for(let i=0; i<board.white.length; i++){
+		let piece = {}
+		piece.piece = board.white[i];
+		piece.color = "white";
 		let moves = possibleMoves(board, piece);
 
 		for(let j=0; j<moves.length; j++){
@@ -192,8 +195,10 @@ function InCheck(board){
 		}
 	}
 
-	for(let i=0; i<board["black"].length; i++){
-		let piece = board["black"][i];
+	for(let i=0; i<board.black.length; i++){
+		let piece = {}
+		piece.piece = board.black[i];
+		piece.color = "black";
 		let moves = possibleMoves(board, piece);
 
 		for(let j=0; j<moves.length; j++){
@@ -253,7 +258,14 @@ function MakeMove(board, x1, y1, x2, y2){
 	if(Possible(board, {"p1": {"x": x1, "y": y1}, "p2": {"x": x2, "y": y2}})){
 		pieceInfo.piece.x = x2;
 		pieceInfo.piece.y = y2;
-		newBoard.turn = (newBoard.turn == "white") ? "black" : "white"; 
+		newBoard.turn = (newBoard.turn == "white") ? "black" : "white";
+		let check = inCheck(newBoard);
+		if(check != undefined){
+			if(board.turn === check){
+				return undefined;
+			}
+		}
+
 		return newBoard;
 	}
 
