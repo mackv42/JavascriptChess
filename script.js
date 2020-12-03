@@ -1,8 +1,7 @@
 var canvas = document.getElementById("ChessBoard");
 var context = canvas.getContext("2d");
 var chessImg = new Image();
-chessImg.src = "chessSpritePng.png"
-chessImg.onload = function(){}
+
 let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
 function Clear(){
 	let squareWidth = canvas.width / 8;
@@ -37,7 +36,6 @@ function RenderBoard(board){
 
 //List of moves made
 var PastMoves = [];
-
 
 const Pieces =  {
 	"King": {
@@ -135,7 +133,6 @@ function possibleMoves(board, pieceInfo){
 			if(getPiece(board, piece.x+1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x+1, "y": piece.y-1}); }
 			if(getPiece(board, piece.x-1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x-1, "y": piece.y-1}); }
 		}
-		return possibilities;
 	}
 
 	if(piece.name == "Kn"){
@@ -147,7 +144,6 @@ function possibleMoves(board, pieceInfo){
 			possibilities.push({"x": x, "y": y});
 		}
 
-		return possibilities;
 	}
 
 	if(piece.name == "Ki"){
@@ -173,6 +169,17 @@ function possibleMoves(board, pieceInfo){
 				possibilities.push({"x": x, "y": y});
 			}
 			
+		}
+	}
+
+	for(let i=0; i<possibilities.length; i++){
+		for(let j=0; j<possibilities.length; j++){
+			let currentPiece = getPiece(board, possibilities[j].x, possibilities[j].y);
+			if(currentPiece !== undefined && currentPiece.color !== undefined){
+			if(getPiece(board, currentPiece.piece.x, currentPiece.piece.y).color == pieceInfo.color){
+				possibilities.splice(j, 1);
+			}
+			}
 		}
 	}
 	return possibilities;
@@ -256,8 +263,12 @@ function MakeMove(board, x1, y1, x2, y2){
 	if(board.turn == "white" && pieceInfo.color == "black"){ return undefined; }
 	if(board.turn == "black" && pieceInfo.color == "white"){ return undefined; }
 	if(Possible(board, {"p1": {"x": x1, "y": y1}, "p2": {"x": x2, "y": y2}})){
+		
 		pieceInfo.piece.x = x2;
 		pieceInfo.piece.y = y2;
+
+
+
 		newBoard.turn = (newBoard.turn == "white") ? "black" : "white";
 		let check = inCheck(newBoard);
 		if(check != undefined){
@@ -276,7 +287,6 @@ function MakeMove(board, x1, y1, x2, y2){
 let selectedSquare = {"x": 0, "y": 0};
 let currentBoard = startingBoard;
 
-RenderBoard(currentBoard);
 
 canvas.onclick = function(evt){
 	let clickOffset = canvas.getBoundingClientRect();
@@ -296,4 +306,9 @@ canvas.onclick = function(evt){
     selectedSquare.x = -1;
 
     RenderBoard(currentBoard);
+}
+
+chessImg.src = "chessSpritePng.png"
+chessImg.onload = function(){
+	RenderBoard(currentBoard);
 }
