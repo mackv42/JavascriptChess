@@ -2,41 +2,6 @@ var canvas = document.getElementById("ChessBoard");
 var context = canvas.getContext("2d");
 var chessImg = new Image();
 
-let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
-function Clear(){
-	let squareWidth = canvas.width / 8;
-	for(let i=0; i<8; i++){
-		for(let j=0; j<8; j++){
-			color = ((i+j+1)%2 == 0) ? "grey":"brown";
-			context.fillStyle = color;
-			context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
-		}
-	}
-}
-
-
-function RenderBoard(board){
-	Clear();
-	for(let i=0; i<board.white.length; i++){
-		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
-
-		//img, sx, sy, sw, sh, x, y, width, height
-		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
-							canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
-	}
-	for(let i=0; i<board.black.length; i++){
-		let clipData = frames.filter(x => x.name == board.black[i].name && x.group == "Black")[0];
-
-		//img, sx, sy, sw, sh, x, y, width, height
-		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
-							canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
-	}
-}
-
-
-//List of moves made
-var PastMoves = [];
-
 const Pieces =  {
 	"King": {
 		"Moves": [{"x": 1, y:1}, {"x": -1, "y":-1}, {"x": 1, "y": -1}, {"x": -1, "y": 1}, {"x": 0, "y": 1}, {"x": 1, "y": 0}, {"x": 0, "y": -1}, {"x": -1, "y": 0}],
@@ -80,8 +45,44 @@ const startingBoard = {
 
 	"black": [{"name":"Ro", "x": 0, "y": 7}, {"name":"Kn", "x": 1, "y": 7}, {"name":"Bi", "x": 2, "y": 7}, {"name":"Qu", "x": 3, "y": 7}, {"name":"Ki", "x": 4, "y": 7}, {"name":"Bi", "x": 5, "y": 7}, {"name":"Kn", "x": 6, "y": 7}, {"name":"Ro", "x": 7, "y": 7},
 		   {"name":"Pa", "x": 0, "y": 6}, {"name":"Pa", "x": 1, "y": 6}, {"name":"Pa", "x": 2, "y": 6}, {"name":"Pa", "x": 3, "y": 6}, {"name":"Pa", x: 4, "y": 6}, {"name":"Pa", "x": 5, "y": 6}, {"name":"Pa", "x": 6, "y": 6}, {"name":"Pa", "x": 7, "y": 6}],
-	"turn": "white"	   
+	"turn": "white",
+	"checkMate": ""
 }
+
+let selectedSquare = {"x": 0, "y": 0};
+let currentBoard = startingBoard;
+
+let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
+function Clear(){
+	let squareWidth = canvas.width / 8;
+	for(let i=0; i<8; i++){
+		for(let j=0; j<8; j++){
+			color = ((i+j+1)%2 == 0) ? "grey":"brown";
+			context.fillStyle = color;
+			context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+		}
+	}
+}
+
+
+function RenderBoard(board){
+	Clear();
+	for(let i=0; i<board.white.length; i++){
+		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
+
+		//img, sx, sy, sw, sh, x, y, width, height
+		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+							canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
+	}
+	for(let i=0; i<board.black.length; i++){
+		let clipData = frames.filter(x => x.name == board.black[i].name && x.group == "Black")[0];
+
+		//img, sx, sy, sw, sh, x, y, width, height
+		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+							canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
+	}
+}
+
 
 
 function getPiece(board, px, py){
@@ -111,9 +112,6 @@ function possibleMoves(board, pieceInfo){
 	let pieceType = PieceNames[piece.name];
 	
 	if(piece.name == "Pa"){
-		//in front of
-		//left diagonal
-		//right diagonal
 		if(pieceInfo.color == "white"){
 			if(getPiece(board, piece.x, piece.y+1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y+1}); 
 				if(piece.y == 1 && getPiece(board, piece.x, piece.y+2) === undefined){possibilities.push({"x": piece.x, "y": piece.y+2});}}
@@ -132,7 +130,6 @@ function possibleMoves(board, pieceInfo){
 			let x = piece.x + pieceType.Moves[i].x;
 			let y = piece.y + pieceType.Moves[i].y;
 			if(!inBounds(x, y)){ continue; }
-			//if(getPiece(board, x, y) === undefined){ continue; }
 			possibilities.push({"x": x, "y": y});
 		}
 
@@ -168,9 +165,9 @@ function possibleMoves(board, pieceInfo){
 		for(let j=0; j<possibilities.length; j++){
 			let currentPiece = getPiece(board, possibilities[j].x, possibilities[j].y);
 			if(currentPiece !== undefined && currentPiece.color !== undefined){
-			if(getPiece(board, currentPiece.piece.x, currentPiece.piece.y).color == pieceInfo.color){
-				possibilities.splice(j, 1);
-			}
+				if(getPiece(board, currentPiece.piece.x, currentPiece.piece.y).color == pieceInfo.color){
+					possibilities.splice(j, 1);
+				}
 			}
 		}
 	}
@@ -212,6 +209,7 @@ function inCheck(board){
 }
 
 // usage Possible(ChessBoard, Move{x1, y1, x2, y2})
+// is a move possible
 function Possible(board, move){
 	let SelectedPiece = getPiece(board, move.p1.x, move.p1.y);
 	if(SelectedPiece === null){ return false; }
@@ -229,6 +227,7 @@ function Possible(board, move){
 	return false;
 }
 
+//makes a copy for immutability
 function copyBoard(board){
 	let newBoard = {};
 	newBoard["white"] = [];
@@ -245,9 +244,44 @@ function copyBoard(board){
 	return newBoard;
 }
 
+function staleMate(board){
+		//get all possible moves see if they all lead to check 
+	let king = board[board.turn].filter(x => x.name == "Ki")[0];
+	let piece = {};
+	let counter1 = 0;
+	let counter2 = 0;
+
+	for(let i=0; i<board[board.turn].length; i++){
+		piece = {"piece": board[board.turn][i], "color": board.turn};
+		let possibilities = possibleMoves(board, piece);
+		for(let j=0; j<possibilities.length; j++){
+			if(MakeMove(board, piece.piece.x, piece.piece.y, possibilities[j].x, possibilities[j].y) == undefined){
+				counter2++;
+			}
+			counter1++;
+		}
+	}
+
+	if(counter1 == counter2 ){
+		return board.turn;
+	} else{
+		return undefined;
+	}
+}
+
+function checkMate(board){
+	let king = board[board.turn].filter(x => x.name == "Ki")[0];
+	let possibilities = [];
+	possibilities = possibleMoves(board, {"piece": king, "color": board.turn});
+	if(inCheck(board) == board.turn){
+		return staleMate(board);
+	}
+	
+	return undefined; 
+}
+
 
 function MakeMove(board, x1, y1, x2, y2){
-// if(!Possible()){ return board; }
 	if(x1 < 0){ return undefined;}
 	let newBoard = copyBoard(board);
 	pieceInfo = getPiece(newBoard, x1, y1);
@@ -261,13 +295,11 @@ function MakeMove(board, x1, y1, x2, y2){
 			if(capturedPiece.color == "white"){
 				for(let i=0; i<newBoard.white.length; i++){
 					if(newBoard.white[i].x == capturedPiece.piece.x && newBoard.white[i].y == capturedPiece.piece.y){
-						console.log(i);
 						newBoard.white.splice(i, 1);
 						break;
 					}
 				}
 			}
-
 
 			if(capturedPiece.color == "black"){
 				for(let i=0; i<newBoard.black.length; i++){
@@ -283,8 +315,6 @@ function MakeMove(board, x1, y1, x2, y2){
 		pieceInfo.piece.x = x2;
 		pieceInfo.piece.y = y2;
 
-		console.log(newBoard);
-
 		newBoard.turn = (newBoard.turn == "white") ? "black" : "white";
 		let check = inCheck(newBoard);
 		if(check != undefined){
@@ -299,18 +329,12 @@ function MakeMove(board, x1, y1, x2, y2){
 	return undefined;
 }
 
-
-let selectedSquare = {"x": 0, "y": 0};
-let currentBoard = startingBoard;
-
-
 canvas.onclick = function(evt){
 	let clickOffset = canvas.getBoundingClientRect();
 	let x = Math.floor((event.clientX - clickOffset.left)/(canvas.width/8));
     let y = Math.floor((event.clientY - clickOffset.top)/(canvas.height/8));
     
     let newBoard = MakeMove(currentBoard, selectedSquare.x, selectedSquare.y, x, y);
-
 
     if(newBoard == undefined){
     	selectedSquare.x = x;
@@ -320,7 +344,7 @@ canvas.onclick = function(evt){
 
     currentBoard = newBoard;
     selectedSquare.x = -1;
-
+    currentBoard.checkMate = checkMate(currentBoard);
     RenderBoard(currentBoard);
 }
 
