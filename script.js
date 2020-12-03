@@ -19,14 +19,14 @@ function RenderBoard(board){
 	Clear();
 	for(let i=0; i<board.white.length; i++){
 		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
-		console.log(clipData);
+
 		//img, sx, sy, sw, sh, x, y, width, height
 		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
 							canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
 	}
 	for(let i=0; i<board.black.length; i++){
-		let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "Black")[0];
-		console.log(clipData);
+		let clipData = frames.filter(x => x.name == board.black[i].name && x.group == "Black")[0];
+
 		//img, sx, sy, sw, sh, x, y, width, height
 		context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
 							canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
@@ -81,14 +81,6 @@ const startingBoard = {
 	"black": [{"name":"Ro", "x": 0, "y": 7}, {"name":"Kn", "x": 1, "y": 7}, {"name":"Bi", "x": 2, "y": 7}, {"name":"Qu", "x": 3, "y": 7}, {"name":"Ki", "x": 4, "y": 7}, {"name":"Bi", "x": 5, "y": 7}, {"name":"Kn", "x": 6, "y": 7}, {"name":"Ro", "x": 7, "y": 7},
 		   {"name":"Pa", "x": 0, "y": 6}, {"name":"Pa", "x": 1, "y": 6}, {"name":"Pa", "x": 2, "y": 6}, {"name":"Pa", "x": 3, "y": 6}, {"name":"Pa", x: 4, "y": 6}, {"name":"Pa", "x": 5, "y": 6}, {"name":"Pa", "x": 6, "y": 6}, {"name":"Pa", "x": 7, "y": 6}],
 	"turn": "white"	   
-}
-
-
-var Move = function(p1, p2){
-	this.p1 = p1;
-	this.p2 = p2;
-	this.difference.x = p2.x - p1.x;
-	this.difference.y = p2.y - p2.y;
 }
 
 
@@ -259,15 +251,39 @@ function MakeMove(board, x1, y1, x2, y2){
 	if(x1 < 0){ return undefined;}
 	let newBoard = copyBoard(board);
 	pieceInfo = getPiece(newBoard, x1, y1);
+
 	if(pieceInfo == undefined){return undefined; }
 	if(board.turn == "white" && pieceInfo.color == "black"){ return undefined; }
 	if(board.turn == "black" && pieceInfo.color == "white"){ return undefined; }
 	if(Possible(board, {"p1": {"x": x1, "y": y1}, "p2": {"x": x2, "y": y2}})){
-		
+		let capturedPiece = getPiece(newBoard, x2, y2);
+		if(capturedPiece !== undefined && capturedPiece.color !== undefined){
+			if(capturedPiece.color == "white"){
+				for(let i=0; i<newBoard.white.length; i++){
+					if(newBoard.white[i].x == capturedPiece.piece.x && newBoard.white[i].y == capturedPiece.piece.y){
+						console.log(i);
+						newBoard.white.splice(i, 1);
+						break;
+					}
+				}
+			}
+
+
+			if(capturedPiece.color == "black"){
+				for(let i=0; i<newBoard.black.length; i++){
+					if(newBoard.black[i].x == capturedPiece.piece.x && newBoard.black[i].y == capturedPiece.piece.y){
+						newBoard.black.splice(i, 1);
+						break;
+					}
+				}
+			}
+		}
+
+
 		pieceInfo.piece.x = x2;
 		pieceInfo.piece.y = y2;
 
-
+		console.log(newBoard);
 
 		newBoard.turn = (newBoard.turn == "white") ? "black" : "white";
 		let check = inCheck(newBoard);
@@ -294,7 +310,7 @@ canvas.onclick = function(evt){
     let y = Math.floor((event.clientY - clickOffset.top)/(canvas.height/8));
     
     let newBoard = MakeMove(currentBoard, selectedSquare.x, selectedSquare.y, x, y);
-    console.log("x "+x +" y "+y)
+
 
     if(newBoard == undefined){
     	selectedSquare.x = x;
