@@ -66,12 +66,13 @@ canvas.onclick = function(evt){
 					"x2": x, "y2": y}},
 	    function(data){
 	    	console.log(data);
-	    	if(data === undefined){
+	    	if(data === null || data === undefined || data.length == 0){
 	    		selectedSquare.x = x;
 	    		selectedSquare.y =y;
 	    		return;
 	    	}
 	    	selectedSquare.x = -1;
+	    	selectedSquare.y = -1;
 	    	currentBoard = data;
 	    	RenderBoard(currentBoard);
 	    }
