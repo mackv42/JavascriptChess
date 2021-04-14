@@ -1,5 +1,4 @@
 const app = require('express')();
-const config = require('config');
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -11,7 +10,10 @@ const bodyParser = require('body-parser');
 const users = require('./routes/signin');
 
 
-const UserSession = require('./models/UserSession')
+const UserSession = require('./models/UserSession');
+const User = require('./models/User');
+const ChessMatch = require('./models/ChessMatch');
+
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,44 +36,10 @@ app.use(function (req, res, next){
     next();
 });
 
-function isAuthenticated(){
-	return true;
-}
-
-app.post('/requireauth/*', (req, res, next) => {
-    const { token } = req.body;
-    console.log(token);
-
-    UserSession.find({
-        _id: token,
-        isDeleted: false
-    },  (err, sessions) => {
-        if (err) {
-            return res.send({
-                success: false,
-                message: 'Verification Error.'
-            });
-    	}
-    	console.log(sessions);
-    	if (sessions.length != 1) {
-            return res.send({
-                success: false,
-                message: 'No sign in'
-            }) 
-        } else{
-            console.log("next");
-         	next();
-        }
-    });
-});
-
 
 app.use('/api/users', users);
 
-const uri = config.get('mongoURI');
-console.log(uri);
-
-mongoose.connect(uri, 
+mongoose.connect("mongodb://localhost/test", 
 {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -84,31 +52,118 @@ mongoose.connect(uri,
     }
 );
 
+app.post('/requireauth/*', (req, res, next) => {
+    const { token } = req.body;
+
+    UserSession.find({
+        _id: token,
+        isDeleted: false
+    },  (err, sessions) => {
+        if (err) {
+            return res.send({
+                success: false,
+                message: 'Verification Error.'
+            });
+    	}
+    	
+    	if (sessions.length != 1) {
+            return res.send({
+                success: false,
+                message: 'No sign in'
+            }) 
+        } else{
+        	User.find({
+        		_id: sessions[0].userId
+        	}, (err, user) =>{
+        		if(err){
+        			console.log("Can not find user");
+        		} else{
+        			console.log(user[0].email);
+        			next();
+        		}
+        	});
+        }
+    });
+});
+
 app.post('/requireauth/makemove', (req, res, next) => {
-	for(let i=0; i<req.body.board.white.length; i++){
-		req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
-		req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
-	}
+	const { token } = req.body;
+	let UserId = "";
+	UserSession.find({
+        _id: token,
+        isDeleted: false
+    },  (err, sessions) => {
+        if (err) {
+            res.send({
+                success: false,
+                message: 'Verification Error.'
+            });
+    	}
+    	
+    	if (sessions.length != 1) {
+            res.send({
+                success: false,
+                message: 'No sign in'
+            }) 
+        } else{
+        	UserId = sessions[0].userId;
+        	let currentMatch = new ChessMatch();
+			ChessMatch.findOne({userId: UserId, finished: false}, 
+		    (err, match) =>{
+		    	if(err){
+		    		console.log("f");
+		    	} else{
+		    		currentMatch = match;
+		    		console.log(match);
+		    	}
+		    });
 
-	for(let i=0; i<req.body.board.black.length; i++ ){
-		req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
-		req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
-	}
+			for(let i=0; i<req.body.board.white.length; i++){
+				req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
+				req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
+			}
 
-	let newBoard = chess.MakeMove(req.body.board, 
-		parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
-		parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
-	
-	if(newBoard === undefined){
-		res.send(undefined);
-	} else{
-		//newBoard.checkMate = chess.checkMate(newBoard);
-		//newBoard.checkMate = chess.checkMate(newBoard);
-		res.send(newBoard);
-	}
+			for(let i=0; i<req.body.board.black.length; i++ ){
+				req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
+				req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
+			}
 
-	console.log(newBoard);
-	next();
+			let newBoard = chess.MakeMove(req.body.board, 
+			parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
+			parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
+
+			if(newBoard === undefined){
+				res.send(undefined);
+			} else{
+				if(!currentMatch || currentMatch.board === undefined){
+					var board = new ChessMatch();
+					board.board = chess.copyBoard(newBoard);
+					board.userId = UserId;
+					board.save((err, x) =>{
+						if(err){
+							console.log("error saving board");
+							return res.send("Error")
+						} else{
+							res.send(newBoard);
+						}
+					});
+				} else{
+					let doc = ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)});
+					doc.save()((err, x) => {
+						if(err){
+							return res.send("error");
+						} else{
+							res.send(newBoard);
+						}
+					});
+				}
+			}
+        }
+    });
+
+	console.log("UserID"+ UserId);
+
+
 });
 
 app.listen(port, () => {

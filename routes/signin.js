@@ -113,7 +113,7 @@ router.post('/signin', (req, res, next) => {
         if (!user.validPassword(password)) {
             return res.send({
                 success: false,
-                message: 'Error'
+                message: 'UserName or passsword do not match'
             });
         }
 
@@ -129,7 +129,7 @@ router.post('/signin', (req, res, next) => {
 
             return res.send({
                 success: true,
-                message: 'It is official- You are Signed In.',
+                message: 'Signed in!',
                 token: doc._id
             });
         });
@@ -152,20 +152,19 @@ router.get('/verify', (req, res, next) => {
                 message: 'Verification Error.'
             });
         }
+        if (sessions.length != 1) {
+            return res.send({
+                success: false,
+                message: 'No session Found'
+            })
+        }
         
         return res.send({
             success: true,
-            message: 'Good, Glad You Are Here.'
+            message: 'Verified'
         });
         
     });
-});
-
-
-router.post('/../../requireAuth/*', (req, res, next) =>{
-    const{ token } = req;
-    console.log('endpoint hit');
-    next();
 });
 
 router.post('/makemove', (req, res, next) => {

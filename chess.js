@@ -178,7 +178,7 @@ function Possible(board, move){
 	
 	let PossibleMoves = possibleMoves(board, SelectedPiece);
 	//can this piece do that?
-	console.log(PossibleMoves);
+	//console.log(PossibleMoves);
 	for(let i=0; i<PossibleMoves.length; i++){
 		if(PossibleMoves[i].x == move.p2.x && PossibleMoves[i].y == move.p2.y){
 			return true;
@@ -302,7 +302,10 @@ function MakeMove(board, x1, y1, x2, y2){
 				return undefined;
 			}
 		}
-				newBoard.checkMate = checkMate(newBoard);
+		//Checkmate seems to have too much recursion for node
+		// This happens with the stalemate function calling this then calling check mate
+		//  A solution may be to make another export for checkmate ( oops )
+				//newBoard.checkMate = checkMate(newBoard);
 
 		return newBoard;
 	}
@@ -311,4 +314,7 @@ function MakeMove(board, x1, y1, x2, y2){
 }
 
 
+exports.copyBoard = copyBoard;
+exports.checkMate = checkMate;
+exports.staleMate = staleMate;
 exports.MakeMove = MakeMove;

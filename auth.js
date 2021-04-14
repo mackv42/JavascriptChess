@@ -19,7 +19,6 @@ signUp.onclick = function(evt){
 		"username": document.getElementById("signupUsername").value,
 		"password": document.getElementById("signupPassword").value
 	};
-	console.log(data);
 
 	for(var val in Object.values(data)){
 		if(!data|| data.length < 1){
