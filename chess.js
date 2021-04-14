@@ -18,7 +18,7 @@ const Pieces =  {
 	"Rook": {
 		"Moves": [{"x": 0, "y": 1}, {"x": 1, "y": 0}, {"x": 0, "y": -1}, {"x": -1, "y": 0}],
 		"Amount": 1
-	}, 
+	},
 	"Pawn": {
 		"Moves": [{"x": 0, "y": 1}, {"x": 1, "y": 1}, {"x": -1, "y": 1}],
 		"Amount": 0
@@ -178,6 +178,7 @@ function Possible(board, move){
 	
 	let PossibleMoves = possibleMoves(board, SelectedPiece);
 	//can this piece do that?
+	console.log(PossibleMoves);
 	for(let i=0; i<PossibleMoves.length; i++){
 		if(PossibleMoves[i].x == move.p2.x && PossibleMoves[i].y == move.p2.y){
 			return true;
@@ -201,7 +202,6 @@ function copyBoard(board){
 	}
 
 	newBoard.turn = board.turn;
-	newBoard.checkMate = board.checkMate;
 	return newBoard;
 }
 
@@ -241,12 +241,32 @@ function checkMate(board){
 	return ""; 
 }
 
+//checks if this is a valid chess board
+function isValid(board){
+	if(board.white.length == 0 || board.black.length|| board === undefined){ return false; }
+	for(let i = 0; i< board.white.length; i++){
+		for(let j=0; j<board[j].white.length; j++){
+			//is valid piece name
+			if(pieceNames[board.white[i][j].name] === undefined){
+				return false;
+			}
+
+			//is valid location
+			if(!inBounds(board.white[i][j].x, board.white[i][j].y)){
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
 
 function MakeMove(board, x1, y1, x2, y2){
 	if(x1 < 0){ return undefined;}
 	let newBoard = copyBoard(board);
 	pieceInfo = getPiece(newBoard, x1, y1);
-
+	//console.log(pieceInfo);
+	//console.log(Possible(board, {"p1": {"x": x1, "y": y1}, "p2": {"x": x2, "y": y2}}));
 	if(pieceInfo == undefined){return undefined; }
 	if(board.turn == "white" && pieceInfo.color == "black"){ return undefined; }
 	if(board.turn == "black" && pieceInfo.color == "white"){ return undefined; }
@@ -275,7 +295,6 @@ function MakeMove(board, x1, y1, x2, y2){
 
 		pieceInfo.piece.x = x2;
 		pieceInfo.piece.y = y2;
-		newBoard.checkMate = checkMate(newBoard);
 		newBoard.turn = (newBoard.turn == "white") ? "black" : "white";
 		let check = inCheck(newBoard);
 		if(check != undefined){
@@ -283,6 +302,7 @@ function MakeMove(board, x1, y1, x2, y2){
 				return undefined;
 			}
 		}
+				newBoard.checkMate = checkMate(newBoard);
 
 		return newBoard;
 	}
@@ -292,4 +312,3 @@ function MakeMove(board, x1, y1, x2, y2){
 
 
 exports.MakeMove = MakeMove;
-exports.checkMate = checkMate;

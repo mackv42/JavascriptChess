@@ -1,8 +1,19 @@
 const app = require('express')();
-const chess = require('chess');
+const config = require('config');
+
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const chess = require('./chess.js');
+
 const port = 3000;
 
 const bodyParser = require('body-parser');
+const users = require('./routes/signin');
+
+
+const UserSession = require('./models/UserSession')
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
@@ -27,14 +38,51 @@ function isAuthenticated(){
 	return true;
 }
 
-app.get('/requireauth/*', (req, res, next) =>{
-		if(isAuthenticated(req)){
-			next();
-		} else{
-			res.send('Not authenticated');
-		}
-	
+app.post('/requireauth/*', (req, res, next) => {
+    const { token } = req.body;
+    console.log(token);
+
+    UserSession.find({
+        _id: token,
+        isDeleted: false
+    },  (err, sessions) => {
+        if (err) {
+            return res.send({
+                success: false,
+                message: 'Verification Error.'
+            });
+    	}
+    	console.log(sessions);
+    	if (sessions.length != 1) {
+            return res.send({
+                success: false,
+                message: 'No sign in'
+            }) 
+        } else{
+            console.log("next");
+         	next();
+        }
+    });
 });
+
+
+app.use('/api/users', users);
+
+const uri = config.get('mongoURI');
+console.log(uri);
+
+mongoose.connect(uri, 
+{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}, (err) => {
+        if(err){
+            throw err
+        }else{
+            console.log('MongoDB Connected');
+        }
+    }
+);
 
 app.post('/requireauth/makemove', (req, res, next) => {
 	for(let i=0; i<req.body.board.white.length; i++){
