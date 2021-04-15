@@ -1,3 +1,13 @@
+const startingBoard = {
+	"white": [{"name": "Ro", "x": 0, "y": 0}, {"name":"Kn", "x": 1, "y": 0}, {"name":"Bi", "x": 2, "y": 0}, {"name":"Qu", "x": 4, "y": 0}, {"name":"Ki", "x": 3, "y": 0}, {"name":"Bi", "x": 5, "y": 0}, {"name":"Kn", "x": 6, "y": 0}, {"name":"Ro", "x": 7, "y": 0},
+		   {"name":"Pa", "x": 0, "y": 1}, {"name":"Pa", "x": 1, "y": 1}, {"name":"Pa", "x": 2, "y": 1}, {"name":"Pa", "x": 3, "y": 1}, {"name":"Pa", "x": 4, "y": 1}, {"name":"Pa", "x": 5, "y": 1}, {"name":"Pa", "x": 6, "y": 1}, {"name":"Pa", "x": 7, "y": 1}],
+
+	"black": [{"name":"Ro", "x": 0, "y": 7}, {"name":"Kn", "x": 1, "y": 7}, {"name":"Bi", "x": 2, "y": 7}, {"name":"Qu", "x": 4, "y": 7}, {"name":"Ki", "x": 3, "y": 7}, {"name":"Bi", "x": 5, "y": 7}, {"name":"Kn", "x": 6, "y": 7}, {"name":"Ro", "x": 7, "y": 7},
+		   {"name":"Pa", "x": 0, "y": 6}, {"name":"Pa", "x": 1, "y": 6}, {"name":"Pa", "x": 2, "y": 6}, {"name":"Pa", "x": 3, "y": 6}, {"name":"Pa", x: 4, "y": 6}, {"name":"Pa", "x": 5, "y": 6}, {"name":"Pa", "x": 6, "y": 6}, {"name":"Pa", "x": 7, "y": 6}],
+	"turn": "white",
+	"checkMate": ""
+}
+
 const Pieces =  {
 	"King": {
 		"Moves": [{"x": 1, y:1}, {"x": -1, "y":-1}, {"x": 1, "y": -1}, {"x": -1, "y": 1}, {"x": 0, "y": 1}, {"x": 1, "y": 0}, {"x": 0, "y": -1}, {"x": -1, "y": 0}],
@@ -35,16 +45,6 @@ const PieceNames = {
 	"Na": null
 }
 
-const startingBoard = {
-	"white": [{"name": "Ro", "x": 0, "y": 0}, {"name":"Kn", "x": 1, "y": 0}, {"name":"Bi", "x": 2, "y": 0}, {"name":"Qu", "x": 3, "y": 0}, {"name":"Ki", "x": 4, "y": 0}, {"name":"Bi", "x": 5, "y": 0}, {"name":"Kn", "x": 6, "y": 0}, {"name":"Ro", "x": 7, "y": 0},
-		   {"name":"Pa", "x": 0, "y": 1}, {"name":"Pa", "x": 1, "y": 1}, {"name":"Pa", "x": 2, "y": 1}, {"name":"Pa", "x": 3, "y": 1}, {"name":"Pa", "x": 4, "y": 1}, {"name":"Pa", "x": 5, "y": 1}, {"name":"Pa", "x": 6, "y": 1}, {"name":"Pa", "x": 7, "y": 1}],
-
-	"black": [{"name":"Ro", "x": 0, "y": 7}, {"name":"Kn", "x": 1, "y": 7}, {"name":"Bi", "x": 2, "y": 7}, {"name":"Qu", "x": 3, "y": 7}, {"name":"Ki", "x": 4, "y": 7}, {"name":"Bi", "x": 5, "y": 7}, {"name":"Kn", "x": 6, "y": 7}, {"name":"Ro", "x": 7, "y": 7},
-		   {"name":"Pa", "x": 0, "y": 6}, {"name":"Pa", "x": 1, "y": 6}, {"name":"Pa", "x": 2, "y": 6}, {"name":"Pa", "x": 3, "y": 6}, {"name":"Pa", x: 4, "y": 6}, {"name":"Pa", "x": 5, "y": 6}, {"name":"Pa", "x": 6, "y": 6}, {"name":"Pa", "x": 7, "y": 6}],
-	"turn": "white",
-	"checkMate": ""
-}
-
 function getPiece(board, px, py){
 	let color = "white";
 	let piece = board.white.filter( x => x.x == px && x.y == py)[0];
@@ -66,6 +66,8 @@ function inBounds(x, y){
 	return false;
 }
 
+
+//modify to tell if move is threating
 function possibleMoves(board, pieceInfo){
 	let possibilities = [];
 	let piece = pieceInfo.piece;
@@ -73,13 +75,13 @@ function possibleMoves(board, pieceInfo){
 	
 	if(piece.name == "Pa"){
 		if(pieceInfo.color == "white"){
-			if(getPiece(board, piece.x, piece.y+1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y+1}); 
-				if(piece.y == 1 && getPiece(board, piece.x, piece.y+2) === undefined){possibilities.push({"x": piece.x, "y": piece.y+2});}}
+			if(getPiece(board, piece.x, piece.y+1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y+1, "noThreat": true}); 
+				if(piece.y == 1 && getPiece(board, piece.x, piece.y+2) === undefined){possibilities.push({"x": piece.x, "y": piece.y+2, "noThreat": true});}}
 			if(getPiece(board, piece.x+1, piece.y+1) !== undefined){ possibilities.push({"x": piece.x+1, "y": piece.y+1}); }
 			if(getPiece(board, piece.x-1, piece.y+1) !== undefined){ possibilities.push({"x": piece.x-1, "y": piece.y+1}); }
 		} else if(pieceInfo.color == "black"){
-			if(getPiece(board, piece.x, piece.y-1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y-1}); 
-				if(piece.y == 6 && getPiece(board, piece.x, piece.y-2) === undefined){possibilities.push({"x": piece.x, "y": piece.y-2});}}
+			if(getPiece(board, piece.x, piece.y-1) === undefined){ possibilities.push({"x": piece.x, "y": piece.y-1, "noThreat": true}); 
+				if(piece.y == 6 && getPiece(board, piece.x, piece.y-2) === undefined){possibilities.push({"x": piece.x, "y": piece.y-2, "noThreat": true});}}
 			if(getPiece(board, piece.x+1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x+1, "y": piece.y-1}); }
 			if(getPiece(board, piece.x-1, piece.y-1) !== undefined){ possibilities.push({"x": piece.x-1, "y": piece.y-1}); }
 		}
@@ -170,10 +172,12 @@ function inCheck(board){
 
 // usage Possible(ChessBoard, Move{x1, y1, x2, y2})
 // is a move possible
+//    
+
 function Possible(board, move){
 	let SelectedPiece = getPiece(board, move.p1.x, move.p1.y);
 	if(SelectedPiece === null){ return false; }
-	if(move.p2.x > 7 || move.p2.x < 0 || move.p2.y >7 || move.p2.y < 0){ return false; }
+	if(move.p2.x > 7 || move.p2.x < 0 || move.p2.y > 7 || move.p2.y < 0){ return false; }
 	if(move.p1.x > 7 || move.p1.x < 0 || move.p1.y > 7 || move.p2.y < 0){ return false; }
 	
 	let PossibleMoves = possibleMoves(board, SelectedPiece);
@@ -261,6 +265,37 @@ function isValid(board){
 	return true;
 }
 
+
+//list of threatened squares
+function getThreats(board){
+	let whiteThreats = [];
+	let blackThreats = [];
+
+	for( let i =0; i < board.white.length; i++){
+		let possibilities = possibleMoves(board, board.white[i].x, board.white[i].y);
+		for( let j=0; j< possibilities.length; j++){
+			if(possibilites.noThreat !== undefined && 
+				whiteThreats.filter(
+					(x) => x.x == possibilities[j].x && possibilities[j].y == x.y).length == 0){
+				blackThreats.push({"x": possibilities[j].x, "y": possibilities[j].y});
+			}
+		}
+	}
+
+	for( let i =0; i < board.black.length; i++){
+		let possibilities = possibleMoves(board, board.black[i].x, board.black[i].y);
+		for( let j=0; j< possibilities.length; j++){
+			if(possibilites.noThreat !== undefined && 
+				blackThreats.filter(
+					(x) => x.x == possibilities[j].x && possibilities[j].y == x.y).length == 0){
+				blackThreats.push({"x": possibilities[j].x, "y": possibilities[j].y});
+			}
+		}
+	}
+
+	return {"blackThreats": blackThreats, "whiteThreats": whiteThreats};
+}
+
 function MakeMove(board, x1, y1, x2, y2){
 	if(x1 < 0){ return undefined;}
 	let newBoard = copyBoard(board);
@@ -302,7 +337,7 @@ function MakeMove(board, x1, y1, x2, y2){
 				return undefined;
 			}
 		}
-		//Checkmate seems to have too much recursion for node
+		//Checkmate seems to have run into infinite recursion
 		// This happens with the stalemate function calling this then calling check mate
 		//  A solution may be to make another export for checkmate ( oops )
 				//newBoard.checkMate = checkMate(newBoard);
@@ -310,11 +345,84 @@ function MakeMove(board, x1, y1, x2, y2){
 		return newBoard;
 	}
 
+
+	if(isCastleAttempt(board, x1, y1, x2, y2)){
+		let castle = castle(board);
+		//castle.foreach( function(c){})
+	}
+
+
 	return undefined;
 }
 
+function isCastleAttempt(board, x1, y1, x2, y2){
+	//is this a castle?
+	if(board.turn == "white"){
+		//white right
+		if(x1 == 3 && y1 == 0 && 
+			x2 == 1 && y2 == 0){
+			return true;
+		}
+
+		//white left
+		if(x1 == 3 && y1 == 0 && x2 == 5 && y2 == 0){
+			return true;
+		}
+	}
+	if(board.turn == "black"){
+		//black left
+		if(x1 == 3 && y1 == 7 && x2 == 1 && y2 == 0){
+			return true;
+		}
+
+		//black right
+		if(x1 == 3 && y1 == 0 && x2 == 5 && y2 == 0){
+			return true;
+		}
+	}
+
+	return false;
+}
+
+function castle(board){
+		//code for castle goes here
+	let whiteKing = board.white.filter(x => x.name == "Ki")[0];
+	let whiteRooks = board.white.filter(x => x.name == "Ro");
+	let blackKing = board.black.filter(x => x.name == "Ki")[0];
+	let blackRooks = board.black.filter(x => x.name == "Ro");
+	let possibilities = [];
+
+
+	let threats = getThreats(board);
+
+	if(board.turn == "white"){
+		//check if king is in right spot and hasn't moved
+		if(whiteKing.x == 4 && whiteKing.y == 0 && !whiteKing.hasMoved){
+			whiteRooks.foreach(function(r){
+				if(!r.hasMoved){
+					//push to possiblities
+					//copyBoard(board)
+				}
+			});
+		}
+	}
+
+	if(board.turn == "black"){
+		if(blackKing.x == 4 && blackKing.y == 0 && !blackKing.hasMoved){
+			whiteRooks.foreach(function(r){
+				if(!r.hasMoved){
+					//push to possiblities
+					//copyBoard(board)
+				}
+			});
+		}
+	}
+
+	return possibilities;
+}
 
 exports.copyBoard = copyBoard;
 exports.checkMate = checkMate;
 exports.staleMate = staleMate;
+exports.startingBoard = startingBoard;
 exports.MakeMove = MakeMove;

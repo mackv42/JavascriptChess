@@ -196,7 +196,7 @@ router.get('/logout', (req, res, next) => {
     }
     return res.send({
                 success: true,
-                message: 'Good, Glad You Were Here.'
+                message: 'Logged Out'
             });
     });
 });

@@ -14,11 +14,23 @@ const UserSession = require('./models/UserSession');
 const User = require('./models/User');
 const ChessMatch = require('./models/ChessMatch');
 
-
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
+
+
+
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', ws => {
+  ws.on('message', message => {
+    console.log(`Received message => ${message}`)
+  })
+  ws.send('Hello! Message From Server!!')
+});
+
 
 app.use(function (req, res, next){
 	    // Website you wish to allow to connect
@@ -162,8 +174,6 @@ app.post('/requireauth/makemove', (req, res, next) => {
     });
 
 	console.log("UserID"+ UserId);
-
-
 });
 
 app.listen(port, () => {
