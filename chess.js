@@ -345,12 +345,26 @@ function MakeMove(board, x1, y1, x2, y2){
 		return newBoard;
 	}
 
-
-	if(isCastleAttempt(board, x1, y1, x2, y2)){
+	//incomplete Castling
+	/*if(isCastleAttempt(board, x1, y1, x2, y2)){
 		let castle = castle(board);
 		//castle.foreach( function(c){})
-	}
+	}*/
 
+
+	//TODO: PAWN PROMOTION
+	/*
+	let pawnOtherSide = board[board.turn].filter(function (x){
+		if(board.turn == "white"){
+			if(x.y == 7){
+				return true;
+			}
+		} else{
+			if(x.y == 0){
+				return true;
+			}
+		}
+	});*/
 
 	return undefined;
 }
@@ -384,6 +398,7 @@ function isCastleAttempt(board, x1, y1, x2, y2){
 	return false;
 }
 
+//gets two possible castles
 function castle(board){
 		//code for castle goes here
 	let whiteKing = board.white.filter(x => x.name == "Ki")[0];
@@ -394,12 +409,22 @@ function castle(board){
 
 
 	let threats = getThreats(board);
+	// Check if squares are threatened
 
 	if(board.turn == "white"){
+
+		if(threats.filter(x => (x.x == 2 && x.y == 0) || (x.x ==1 && x.y == 0)).length == 0){
+			//white right possible
+		}
+
+		if(threats.filter( x=>(x.x== 5 && x.y == 0) || (x.x == 4 && x.y == 0) || (x.x == 6 && x.y == 0)).length == 0){
+			//white left possible
+		}
 		//check if king is in right spot and hasn't moved
 		if(whiteKing.x == 4 && whiteKing.y == 0 && !whiteKing.hasMoved){
 			whiteRooks.foreach(function(r){
 				if(!r.hasMoved){
+
 					//push to possiblities
 					//copyBoard(board)
 				}
@@ -408,6 +433,14 @@ function castle(board){
 	}
 
 	if(board.turn == "black"){
+		if(threats.filter(x => (x.x == 2 && x.y == 7) || (x.x ==1 && x.y == 7)).length == 0){
+			//black left possible
+		}
+
+		if(threats.filter( x=>(x.x== 5 && x.y == 7) || (x.x == 4 && x.y == 7) || (x.x == 6 && x.y == 7)).length == 0){
+			//black right possible
+		}
+
 		if(blackKing.x == 4 && blackKing.y == 0 && !blackKing.hasMoved){
 			whiteRooks.foreach(function(r){
 				if(!r.hasMoved){
