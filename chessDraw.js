@@ -5,7 +5,7 @@ var address = "http://localhost:3000";
 var endpoints = {"MakeMove": address+"/requireauth/makemove"};
 
 const squareWidth = 8;
-
+let currentBoard = new Object();
 let selectedSquare = {"x": -1, "y": -1};
 
 let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
@@ -39,41 +39,9 @@ function RenderBoard(board){
 	}
 }
 
-canvas.onclick = function(evt){
-	let clickOffset = canvas.getBoundingClientRect();
-	let x = Math.floor((event.clientX - clickOffset.left)/(canvas.width/8));
-    let y = Math.floor((event.clientY - clickOffset.top)/(canvas.height/8));
 
-    //-1 meaning select else make move
-   	if(selectedSquare.x == -1){
-   		selectedSquare.x = x;
-   		selectedSquare.y = y;
-   	} else{
-	    $.post(
-	    	endpoints.MakeMove,
-	    	{"token": signInData.token, 
-	    	 "board": currentBoard,
-	    	 "move": {"x1": selectedSquare.x, "y1": selectedSquare.y,
-						"x2": x, "y2": y}},
-
-		    function(data){
-		    	console.log(data);
-		    	if(data === null || data === undefined || data.length == 0){
-		    		selectedSquare.x = x;
-		    		selectedSquare.y =y;
-		    		return;
-		    	}
-
-		    	selectedSquare.x = -1;
-		    	selectedSquare.y = -1;
-		    	currentBoard = data;
-		    	RenderBoard(currentBoard);
-		    }
-		);
-	}
-}
 
 chessImg.src = "chessSpritepng.png";
 chessImg.onload = function(){
-	RenderBoard(currentBoard);
+	//RenderBoard(currentBoard);
 }

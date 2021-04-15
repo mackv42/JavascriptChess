@@ -44,8 +44,17 @@ signIn.onclick = function(evt){
 	}
 
 	axios.post("http://"+endpoint+"signin", data).then( function(response){
+		
+
 		if(response.data.success){
 			signInData.token = response.data.token;
+			axios.get("http://localhost:3000/requireauth/getGame?token="+signInData.token).then( function(response){
+				if(response.data.success){
+					currentBoard = response.data.board;
+					RenderBoard(response.data.board);
+				}
+			});
+
 			$("#signInModal").modal('hide');
 			document.getElementById("ChessBoard").style.display = "block";
 

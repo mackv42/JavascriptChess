@@ -98,6 +98,42 @@ app.post('/requireauth/*', (req, res, next) => {
     });
 });
 
+
+app.get('/requireauth/getGame', (req, res, next) => {
+    const { query } = req;
+    const { token } = query;
+    console.log(token);
+    UserSession.find({
+        _id: token,
+        isDeleted: false
+    },  (err, sessions) => {
+        if (err) {
+            return res.send({
+                success: false,
+                message: 'Verification Error.'
+            });
+        }
+        if (sessions.length < 1) {
+            return res.send({
+                success: false,
+                message: 'No session Found'
+            })
+        }
+        let UserId = sessions[0].userId;
+
+        ChessMatch.findOne({userId: UserId, finished: false}, 
+            (err, match) =>{
+                if(err){
+                    console.log(err);
+                } else if(match === undefined){
+                    return res.send({"board": startingBoard, "success":true});
+                }else{
+                    res.send({"board": match.board, "success": true});
+                }
+            });
+    });
+})
+
 app.post('/requireauth/makemove', (req, res, next) => {
 	const { token } = req.body;
 	let UserId = "";
@@ -119,57 +155,53 @@ app.post('/requireauth/makemove', (req, res, next) => {
             }) 
         } else{
         	UserId = sessions[0].userId;
-        	let currentMatch = new ChessMatch();
+        	//let currentMatch = new ChessMatch();
 			ChessMatch.findOne({userId: UserId, finished: false}, 
-		    (err, match) =>{
+		    (err, currentMatch) =>{
 		    	if(err){
 		    		console.log("f");
 		    	} else{
-		    		currentMatch = match;
-		    		console.log(match);
+		    		for(let i=0; i<req.body.board.white.length; i++){
+                        req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
+                        req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
+                    }
+
+                    for(let i=0; i<req.body.board.black.length; i++ ){
+                        req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
+                        req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
+                    }
+
+                    let newBoard = chess.MakeMove(req.body.board, 
+                    parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
+                    parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
+
+                    if(newBoard === undefined){
+                        res.send(undefined);
+                    } else{
+                        if(!currentMatch || currentMatch.board === undefined){
+                            var board = new ChessMatch();
+                            board.board = chess.copyBoard(newBoard);
+                            board.userId = UserId;
+                            board.save((err, x) =>{
+                                if(err){
+                                    console.log("error saving board");
+                                    return res.send("Error")
+                                } else{
+                                    res.send(newBoard);
+                                }
+                            });
+                        } else{
+                            //console.log("yep");
+                            ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
+                                doc.save();
+                            });
+                            res.send(newBoard);
+                        }
+                    }
 		    	}
 		    });
 
-			for(let i=0; i<req.body.board.white.length; i++){
-				req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
-				req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
-			}
-
-			for(let i=0; i<req.body.board.black.length; i++ ){
-				req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
-				req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
-			}
-
-			let newBoard = chess.MakeMove(req.body.board, 
-			parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
-			parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
-
-			if(newBoard === undefined){
-				res.send(undefined);
-			} else{
-				if(!currentMatch || currentMatch.board === undefined){
-					var board = new ChessMatch();
-					board.board = chess.copyBoard(newBoard);
-					board.userId = UserId;
-					board.save((err, x) =>{
-						if(err){
-							console.log("error saving board");
-							return res.send("Error")
-						} else{
-							res.send(newBoard);
-						}
-					});
-				} else{
-					let doc = ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)});
-					doc.save()((err, x) => {
-						if(err){
-							return res.send("error");
-						} else{
-							res.send(newBoard);
-						}
-					});
-				}
-			}
+			
         }
     });
 
