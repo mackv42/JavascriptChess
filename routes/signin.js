@@ -119,6 +119,7 @@ router.post('/signin', (req, res, next) => {
 
         const userSession = new UserSession();
         userSession.userId = user._id;
+        userSession.userName = user.userName;
         userSession.save((err, doc) => {
             if (err) {
                 return res.send({

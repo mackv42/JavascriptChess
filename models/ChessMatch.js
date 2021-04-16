@@ -5,6 +5,10 @@ const ChessMatchSchema = new mongoose.Schema({
 		type: String,
 		default: ""
 	},
+	userName: {
+		type: String,
+		default: ""
+	},
 	board: {type: mongoose.Schema.Types.Mixed},
 	finished: {
 		type: Boolean,

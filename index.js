@@ -118,7 +118,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
             })
         }
         let UserId = sessions[0].userId;
-
+        let userName = sessions[0].userName;
         ChessMatch.findOne({userId: UserId, finished: false}, 
             (err, match) =>{
                 if(err){
@@ -127,6 +127,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                     var board = new ChessMatch();
                     board.board = chess.copyBoard(chess.startingBoard);
                     board.userId = UserId;
+                    board.userName = userName;
 
                     board.save((err, x) =>{
                         if(err){
@@ -234,11 +235,11 @@ app.get("/admin/*", (req, res, err, next) =>{
 app.get("/admin/getboard", (req, res, err) => {
     const {query} = req;
     const {username} = query;
-    User.findone({"email": username}, (err, user)=>{
+    User.findone({"userName": username}, (err, user)=> {
         if(err){
             res.send({"message": err, "success": false});
         } else if(!user){
-            res.send("message": "no user found", "success": false);
+            res.send({"message": "no user found", "success": false});
         } else{
             ChessMatch.findone({"userId": User.userid, "finished": false},
                 (err, match) =>{
@@ -255,7 +256,7 @@ app.get("/admin/getboards", (req, res, err) => {
         if(err){
             res.send(err);
         } else{
-            //const {boards} = matches;
+
             return res.send(matches);
         }
     });

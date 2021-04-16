@@ -79,6 +79,14 @@ let chessList = document.getElementById("chessBoardList");
 
 $.get(address+"/admin/getboards?token=" + adminSecret.APIkey, function(data){
 	console.log(data);
+	for(let i = 0; i<data.length; i++){
+		var node = document.createElement("a");
+		node.href ="#";
+		var textnode = document.createTextNode("Game with " + data[i].userName);
+		node.appendChild(textnode);
+
+		chessList.appendChild(node);
+	}
 });
 
 /*
