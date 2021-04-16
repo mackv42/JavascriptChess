@@ -233,8 +233,20 @@ app.get("/admin/*", (req, res, err, next) =>{
 //get a board with particular user
 app.get("/admin/getboard", (req, res, err) => {
     const {query} = req;
-    const {token} = query;
-
+    const {username} = query;
+    User.findone({"email": username}, (err, user)=>{
+        if(err){
+            res.send({"message": err, "success": false});
+        } else if(!user){
+            res.send("message": "no user found", "success": false);
+        } else{
+            ChessMatch.findone({"userId": User.userid, "finished": false},
+                (err, match) =>{
+                    res.send(match);
+                }
+            );
+        }
+    });
 });
 
 //sends a list of all current games
@@ -243,6 +255,7 @@ app.get("/admin/getboards", (req, res, err) => {
         if(err){
             res.send(err);
         } else{
+            //const {boards} = matches;
             return res.send(matches);
         }
     });
