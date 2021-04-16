@@ -81,11 +81,19 @@ $.get(address+"/admin/getboards?token=" + adminSecret.APIkey, function(data){
 	console.log(data);
 	for(let i = 0; i<data.length; i++){
 		var node = document.createElement("a");
-		node.href ="#";
+		node.href = "#" + data[i].userId;
 		var textnode = document.createTextNode("Game with " + data[i].userName);
 		node.appendChild(textnode);
 
 		chessList.appendChild(node);
+		node.onclick = function (){
+			let userId = this.href.substring(this.href.indexOf("#")+1);
+			//console.log(this.href.substring(this.href.indexOf("#")+1));
+
+			$.get(address + "/admin/getboard?userId="+userId+"&token="+adminSecret.APIkey, function(data){
+				console.log(data);
+			});
+		}
 	}
 });
 

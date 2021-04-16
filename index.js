@@ -22,6 +22,12 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 8080 });
 
+function coinFlip(){
+    if(Math.floor((Math.random() * 100) % 2 == 0)){
+        return true;
+    } else{ return false; }
+}
+
 wss.on('connection', ws => {
   ws.on('message', message => {
     console.log(`Received message => ${message}`)
@@ -117,6 +123,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                 message: 'No session Found'
             })
         }
+
         let UserId = sessions[0].userId;
         let userName = sessions[0].userName;
         ChessMatch.findOne({userId: UserId, finished: false}, 
@@ -128,13 +135,14 @@ app.get('/requireauth/getGame', (req, res, next) => {
                     board.board = chess.copyBoard(chess.startingBoard);
                     board.userId = UserId;
                     board.userName = userName;
-
+                    board.playerColor = coinFlip() ? "black":"white";
+                    
                     board.save((err, x) =>{
                         if(err){
                             console.log("error saving board");
                             return res.send("Error")
                         } else{
-                           return res.send({"board": chess.startingBoard, "success":true});
+                           return res.send({"board": chess.startingBoard, "playerColor": board.playerColor, "success": true});
                         }
                     });
                 } else{
@@ -218,10 +226,10 @@ app.post('/requireauth/makemove', (req, res, next) => {
 	console.log("UserID"+ UserId);
 });
 
-app.get("/admin/*", (req, res, err, next) =>{
+app.get("/admin/*", (req, res,next) =>{
     const {query} = req;
     const {token} = query;
-
+    //console.log("hit");
     if(token == secrets.adminSecret.APIkey){
         console.log("Hello Vince!");
     } else{
@@ -234,20 +242,12 @@ app.get("/admin/*", (req, res, err, next) =>{
 //get a board with particular user
 app.get("/admin/getboard", (req, res, err) => {
     const {query} = req;
-    const {username} = query;
-    User.findone({"userName": username}, (err, user)=> {
-        if(err){
-            res.send({"message": err, "success": false});
-        } else if(!user){
-            res.send({"message": "no user found", "success": false});
-        } else{
-            ChessMatch.findone({"userId": User.userid, "finished": false},
-                (err, match) =>{
-                    res.send(match);
-                }
-            );
+    const {userId} = query;
+    ChessMatch.findOne({"userId": userId, "finished": false},
+        (err, match) =>{
+            res.send(match);
         }
-    });
+    );
 });
 
 //sends a list of all current games

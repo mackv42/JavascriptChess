@@ -10,6 +10,11 @@ const ChessMatchSchema = new mongoose.Schema({
 		default: ""
 	},
 	board: {type: mongoose.Schema.Types.Mixed},
+	
+	playerColor: {
+		type: String,
+		default: ""
+	},
 	finished: {
 		type: Boolean,
 		default: false
