@@ -18,8 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
-
-
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 8080 });
@@ -194,8 +192,8 @@ app.post('/requireauth/makemove', (req, res, next) => {
                             //console.log("yep");
                             ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
                                 doc.save();
+                                res.send(newBoard);
                             });
-                            res.send(newBoard);
                         }
                     }
 		    	}
