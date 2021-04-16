@@ -8,7 +8,7 @@ const port = 3000;
 
 const bodyParser = require('body-parser');
 const users = require('./routes/signin');
-
+const secrets = require('./secret.js');
 
 const UserSession = require('./models/UserSession');
 const User = require('./models/User');
@@ -204,6 +204,37 @@ app.post('/requireauth/makemove', (req, res, next) => {
     });
 
 	console.log("UserID"+ UserId);
+});
+
+app.get("/admin/*", (req, res, err, next) =>{
+    const {query} = req;
+    const {token} = query;
+
+    if(token == secrets.adminSecret.APIkey){
+        console.log("Hello Vince!");
+    } else{
+        return res.send({"success": false, "message": "Invalid Key!"})
+    }
+    next();
+
+});
+
+//get a board with particular user
+app.get("/admin/getboard", (req, res, err) => {
+    const {query} = req;
+    const {token} = query;
+
+});
+
+//sends a list of all current games
+app.get("/admin/getboards", (req, res, err) => {
+    ChessMatch.find({"finished": false}, (err, matches) =>{
+        if(err){
+            res.send(err);
+        } else{
+            return res.send(matches);
+        }
+    });
 });
 
 app.listen(port, () => {
