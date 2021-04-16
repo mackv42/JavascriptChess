@@ -123,9 +123,20 @@ app.get('/requireauth/getGame', (req, res, next) => {
             (err, match) =>{
                 if(err){
                     console.log(err);
-                } else if(match === undefined){
-                    return res.send({"board": startingBoard, "success":true});
-                }else{
+                } else if(!match){
+                    var board = new ChessMatch();
+                    board.board = chess.copyBoard(chess.startingBoard);
+                    board.userId = UserId;
+
+                    board.save((err, x) =>{
+                        if(err){
+                            console.log("error saving board");
+                            return res.send("Error")
+                        } else{
+                           return res.send({"board": chess.startingBoard, "success":true});
+                        }
+                    });
+                } else{
                     res.send({"board": match.board, "success": true});
                 }
             });
@@ -150,7 +161,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
             res.send({
                 success: false,
                 message: 'No sign in'
-            }) 
+            });
         } else{
         	UserId = sessions[0].userId;
         	//let currentMatch = new ChessMatch();
