@@ -205,6 +205,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
                                     console.log("error saving board");
                                     return res.send("Error")
                                 } else{
+                                    newBoard.playerColor = board.playerColor;
                                     res.send(newBoard);
                                 }
                             });
@@ -212,9 +213,9 @@ app.post('/requireauth/makemove', (req, res, next) => {
                             if(currentMatch.playerColor != req.body.board.turn){
                                 return res.send(undefined);
                             } else{
-                                //console.log("yep");
                                 ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
                                     doc.save();
+                                    newBoard.playerColor = board.playerColor;
                                     return res.send(newBoard);
                                 });
                             }

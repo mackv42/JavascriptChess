@@ -1,12 +1,18 @@
+
 canvas.onclick = function(evt){
 	let clickOffset = canvas.getBoundingClientRect();
-	let x = Math.floor((event.clientX - clickOffset.left)/(canvas.width/8));
-    let y = Math.floor((event.clientY - clickOffset.top)/(canvas.height/8));
+	let clickData ={
+	"x": Math.floor((event.clientX - clickOffset.left)/(canvas.width/8)),
+    "y": Math.floor((event.clientY - clickOffset.top)/(canvas.height/8))};
+
+    if(currentBoard.playerColor == "white"){
+    	clickData = subtract2d(7, 7, clickData.x, clickData.y)
+    }
 
     //-1 meaning select else make move
    	if(selectedSquare.x == -1){
-   		selectedSquare.x = x;
-   		selectedSquare.y = y;
+   		selectedSquare.x = clickData.x;
+   		selectedSquare.y = clickData.y;
    	} else{
 	    $.post(
 	    	endpoints.MakeMove,
