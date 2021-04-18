@@ -117,6 +117,7 @@ $.get(address+"/admin/getboards?token=" + adminSecret.APIkey, function(data){
 			$.get(address + "/admin/getboard?userId="+userId+"&token="+adminSecret.APIkey, function(data){
 				document.getElementById("ChessBoard").display = "block";
 				currentBoard = data.board;
+				currentBoard.id = data.userId;
 				currentBoard.playerColor = data.playerColor;
 				RenderBoard(currentBoard);
 			});

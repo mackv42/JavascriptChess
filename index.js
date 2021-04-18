@@ -193,7 +193,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
                         req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
                     }
 
-                    let newBoard = chess.MakeMove(req.body.board, 
+                    let newBoard = chess.MakeMove(currentMatch.board, 
                     parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
                     parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
 
@@ -247,6 +247,18 @@ app.get("/admin/*", (req, res,next) =>{
 
 });
 
+app.post("/admin/*", (req, res, next) =>{
+    const {token} = req.body;
+
+    if(token == secrets.adminSecret.APIkey){
+        console.log("Hello Vince!")
+    } else{
+        return res.send({"success": false, "message": "Invalid Key!"})
+    }
+
+    next();
+});
+
 //get a board with particular user
 app.get("/admin/getboard", (req, res, err) => {
     const {query} = req;
@@ -268,6 +280,53 @@ app.get("/admin/getboards", (req, res, err) => {
             return res.send(matches);
         }
     });
+});
+
+app.post("/admin/makemove", (req, res, err ) => {
+    let {board} = req.body;
+    let {move} = req.body;
+    //console.log(board);
+    ChessMatch.findOne({userId: board.id, finished: false}, 
+            (err, currentMatch) =>{//
+                console.log(currentMatch);
+                if(err || !currentMatch || currentMatch === undefined){
+                    console.log(currentMatch);
+                    console.log("f");
+                } else{
+                    for(let i=0; i<req.body.board.white.length; i++){
+                        req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
+                        req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
+                    }
+
+                    for(let i=0; i<req.body.board.black.length; i++ ){
+                        req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
+                        req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
+                    }
+                    if(currentMatch.playerColor == currentMatch.turn){
+                        return res.send({"message": "not your turn", "success": false});
+                    }
+                    let newBoard = chess.MakeMove(currentMatch.board, 
+                    parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
+                    parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
+
+                    if(newBoard === undefined){
+                        res.send(undefined);
+                    } else{
+                        if(!currentMatch || currentMatch.board === undefined){
+                            return res.send({"message": "no board found", "success": false});
+                            
+                        } else{
+                            
+                                ChessMatch.findOneAndUpdate({userId: board.id}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
+                                    doc.save();
+                                    newBoard.playerColor = "";
+                                    newBoard.playerColor = currentMatch.playerColor;
+                                    return res.send(newBoard);
+                                });
+                        }
+                    }
+                }
+            });
 });
 
 app.listen(port, () => {
