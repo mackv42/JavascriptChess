@@ -33,6 +33,8 @@ canvas.onclick = function(evt){
 		    	selectedSquare.y = -1;
 		    	currentBoard = data;
 		    	RenderBoard(currentBoard);
+
+		    		sockData.socket.emit("move", {to: "admin", message: "hi"});
 		    }
 		);
 	}

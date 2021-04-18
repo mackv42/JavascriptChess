@@ -13,6 +13,7 @@ function register(token){
 				currentBoard = response.data.board;
 				currentBoard.playerColor = response.data.playerColor;
 				RenderBoard(response.data.board);
+			
 			}
 		});
 	});

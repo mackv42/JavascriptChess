@@ -7,7 +7,7 @@ var context = canvas.getContext("2d");
 var chessImg = new Image();
 var address = "http://localhost:3000";
 var endpoints = {"MakeMove": address+"/requireauth/makemove"};
-
+let currentBoard = new Object();
 const squareWidth = 8;
 
 let selectedSquare = {"x": -1, "y": -1};
@@ -100,6 +100,7 @@ canvas.onclick = function(evt){
 		    	let userName = currentBoard.userName;
 		    	currentBoard = data;
 		    	currentBoard.userName= userName;
+
 		    	makemove(userName);
 		    	RenderBoard(currentBoard);
 		    }
@@ -134,6 +135,24 @@ $.get(address+"/admin/getboards?token=" + adminSecret.APIkey, function(data){
 			});
 		}
 	}
+});
+
+sockData.socket.on('move', function(dat){
+	//console.log("emit");
+	$.get(address + "/admin/getboard?userId="+currentBoard.userId+"&token="+adminSecret.APIkey, function(data){
+				document.getElementById("ChessBoard").display = "block";
+				console.log(currentBoard);
+				console.log(currentBoard.userName);
+				if(!data){
+					console.log("no data");
+					return;
+				}
+				currentBoard = data.board;
+				currentBoard.id = data.userId;
+				currentBoard.userName = data.userName;
+				currentBoard.playerColor = data.playerColor;
+				RenderBoard(currentBoard);
+			});
 });
 
 /*

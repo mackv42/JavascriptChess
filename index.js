@@ -45,27 +45,30 @@ io.on('connection',function(socket){
             if(user){
                 socket.username = user.userName;
                 connectedUsers[user.userName] = socket;
-                console.log(connectedUsers);
             } 
            
         });
     });
     //create socket for admin
-    socket.on('admin', function(token){
-        if(token == secrets.adminSecret.APIkey){
+    socket.on('admin', function(data){
+        if(data.token == secrets.adminSecret.APIkey){
             admin = socket;
+            
         }
     });
 
+    socket.on('move', function(data){
+        admin.emit("move", {
+            userName: "hello", message: "hello"
+        });
+    })
+
     socket.on('makemove',function(data){
-        console.log("hit1");
-        if(data.key == secrets.adminSecret.APIkey){
-            console.log("hit2");
-            console.log(data);
-            const to = data.to,
+        console.log(data);
+        const to = data.to,
                 message = data.message;
+        if(data.key == secrets.adminSecret.APIkey){
             if(connectedUsers.hasOwnProperty(to)){
-                console.log("hit3")
                 connectedUsers[to].emit('makemove',{
                     //The sender's username
                     username : socket.username,
@@ -371,6 +374,7 @@ app.post("/admin/makemove", (req, res, err ) => {
                                     doc.save();
                                     newBoard.playerColor = "";
                                     newBoard.playerColor = currentMatch.playerColor;
+                                    newBoard.userId = currentMatch.userId;
                                     console.log(newBoard);
                                     return res.send(newBoard);
                                 });
