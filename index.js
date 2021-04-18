@@ -288,7 +288,6 @@ app.post("/admin/makemove", (req, res, err ) => {
     //console.log(board);
     ChessMatch.findOne({userId: board.id, finished: false}, 
             (err, currentMatch) =>{//
-                console.log(currentMatch);
                 if(err || !currentMatch || currentMatch === undefined){
                     console.log(currentMatch);
                     console.log("f");
@@ -321,6 +320,7 @@ app.post("/admin/makemove", (req, res, err ) => {
                                     doc.save();
                                     newBoard.playerColor = "";
                                     newBoard.playerColor = currentMatch.playerColor;
+                                    console.log(newBoard);
                                     return res.send(newBoard);
                                 });
                         }
