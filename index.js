@@ -135,7 +135,11 @@ app.get('/requireauth/getGame', (req, res, next) => {
                     board.board = chess.copyBoard(chess.startingBoard);
                     board.userId = UserId;
                     board.userName = userName;
-                    board.playerColor = coinFlip() ? "black":"white";
+                    if(coinFlip()){
+                         board.playerColor = "white";
+                    } else{
+                        board.playerColor = "black";
+                    }
 
                     board.save((err, x) =>{
                         if(err){
@@ -146,7 +150,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                         }
                     });
                 } else{
-                    res.send({"board": match.board, "success": true});
+                    res.send({"board": match.board, "playerColor": match.playerColor, "success": true});
                 }
             });
     });
@@ -215,7 +219,8 @@ app.post('/requireauth/makemove', (req, res, next) => {
                             } else{
                                 ChessMatch.findOneAndUpdate({userId: UserId}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
                                     doc.save();
-                                    newBoard.playerColor = board.playerColor;
+                                    newBoard.playerColor = "";
+                                    newBoard.playerColor = currentMatch.playerColor;
                                     return res.send(newBoard);
                                 });
                             }
@@ -223,8 +228,6 @@ app.post('/requireauth/makemove', (req, res, next) => {
                     }
 		    	}
 		    });
-
-			
         }
     });
 

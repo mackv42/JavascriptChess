@@ -51,6 +51,7 @@ signIn.onclick = function(evt){
 			axios.get("http://localhost:3000/requireauth/getGame?token="+signInData.token).then( function(response){
 				if(response.data.success){
 					currentBoard = response.data.board;
+					currentBoard.playerColor = response.data.playerColor;
 					RenderBoard(response.data.board);
 				}
 			});

@@ -19,7 +19,7 @@ function Clear(){
 	let squareWidth = canvas.width / 8;
 	for(let i=0; i<8; i++){
 		for(let j=0; j<8; j++){
-			color = ((i+j+1)%2 == 0 && currentBoard.turn == "black") ? "grey":"brown";
+			color = ((i+j)%2 == 0) ? "brown":"grey";
 			context.fillStyle = color;
 			context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
 		}
@@ -29,20 +29,6 @@ function Clear(){
 function RenderBoard(board){
 	Clear();
 	if(board.playerColor == "white"){
-		for(let i=0; i<board.white.length; i++){
-			let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
-			//img, sx, sy, sw, sh, x, y, width, height
-			context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
-								canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
-		}
-		for(let i=0; i<board.black.length; i++){
-			let clipData = frames.filter(x => x.name == board.black[i].name && x.group == "Black")[0];
-
-			//img, sx, sy, sw, sh, x, y, width, height
-			context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
-								canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
-		}
-	} else{
 		for(let i=0; i<board.white.length; i++){
 			let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
 			//flip orientation to draw
@@ -58,6 +44,22 @@ function RenderBoard(board){
 			//img, sx, sy, sw, sh, x, y, width, height
 			context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
 								flipped.x, flipped.y, canvas.width/8, canvas.height/8);
+		}
+
+
+	} else{
+		for(let i=0; i<board.white.length; i++){
+			let clipData = frames.filter(x => x.name == board.white[i].name && x.group == "White")[0];
+			//img, sx, sy, sw, sh, x, y, width, height
+			context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+								canvas.width/8*board.white[i].x, canvas.height/8*board.white[i].y, canvas.width/8, canvas.height/8);
+		}
+		for(let i=0; i<board.black.length; i++){
+			let clipData = frames.filter(x => x.name == board.black[i].name && x.group == "Black")[0];
+
+			//img, sx, sy, sw, sh, x, y, width, height
+			context.drawImage(chessImg, clipData.point1.x, clipData.point1.y, clipData.point2.x -clipData.point1.x, clipData.point2.y - clipData.point1.y,
+								canvas.width/8*board.black[i].x, canvas.height/8*board.black[i].y, canvas.width/8, canvas.height/8);
 		}
 	}
 }
