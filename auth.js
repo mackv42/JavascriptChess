@@ -53,9 +53,15 @@ signIn.onclick = function(evt){
 					currentBoard = response.data.board;
 					currentBoard.playerColor = response.data.playerColor;
 					RenderBoard(response.data.board);
+					var wsUrl = "http://localhost:8080";
+					var socket = io.connect(wsUrl);
+					socket.emit('register', signInData.token);
+
 				}
 			});
 
+			
+			
 			$("#signInModal").modal('hide');
 			document.getElementById("ChessBoard").style.display = "block";
 

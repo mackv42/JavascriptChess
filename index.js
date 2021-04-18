@@ -2,6 +2,9 @@ const app = require('express')();
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+
+
+
 const chess = require('./chess.js');
 
 const port = 3000;
@@ -18,22 +21,67 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
-const WebSocket = require('ws');
+const http = require('http').Server(app);
+//const server = http.createServer(app);
+const io = require('socket.io')(http, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
-const wss = new WebSocket.Server({ port: 8080 });
+var connectedUsers = {};
+var admin = {};
+//https://stackoverflow.com/questions/11356001/socket-io-private-message
+app.listen(port, () => {
+    console.log('Listening on http://localhost:'+port);
+});
+
+io.on('connection',function(socket){
+/*Create socket for particular user*/
+    socket.on('register', function(token){
+        UserSession.findOne({_id: token}, function(err, user){
+            console.log(user);
+            if(user){
+                socket.username = user.userName;
+                connectedUsers[user.userName] = socket;
+                console.log(connectedUsers);
+            } 
+           
+        });
+    });
+    //create socket for admin
+    socket.on('admin', function(token){
+        if(token == secrets.adminSecret.APIkey){
+            admin = socket;
+        }
+    });
+
+    socket.on('makemove',function(data){
+        if(data.key == secrets.adminSecret.APIkey){
+            const to = data.to,
+                message = data.message;
+            if(connectedUsers.hasOwnProperty(to)){
+                connectedUsers[to].emit('makemove',{
+                    //The sender's username
+                    username : socket.username,
+
+                    //Message sent to receiver
+                    message : message
+                });
+            }
+        }
+    }); 
+});
+
+
+
 
 function coinFlip(){
     if(Math.floor((Math.random() * 100) % 2 == 0)){
         return true;
     } else{ return false; }
 }
-
-wss.on('connection', ws => {
-  ws.on('message', message => {
-    console.log(`Received message => ${message}`)
-  })
-  ws.send('Hello! Message From Server!!')
-});
 
 
 app.use(function (req, res, next){
@@ -51,7 +99,6 @@ app.use(function (req, res, next){
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
-
 
 app.use('/api/users', users);
 
@@ -329,6 +376,6 @@ app.post("/admin/makemove", (req, res, err ) => {
             });
 });
 
-app.listen(port, () => {
-	console.log('Listening on http://localhost:'+port);
+http.listen(8080, function(){
+    console.log("listening on port 8080");
 });
