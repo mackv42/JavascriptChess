@@ -58,10 +58,14 @@ io.on('connection',function(socket){
     });
 
     socket.on('makemove',function(data){
+        console.log("hit1");
         if(data.key == secrets.adminSecret.APIkey){
+            console.log("hit2");
+            console.log(data);
             const to = data.to,
                 message = data.message;
             if(connectedUsers.hasOwnProperty(to)){
+                console.log("hit3")
                 connectedUsers[to].emit('makemove',{
                     //The sender's username
                     username : socket.username,

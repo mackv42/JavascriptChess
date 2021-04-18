@@ -96,7 +96,11 @@ canvas.onclick = function(evt){
 
 		    	selectedSquare.x = -1;
 		    	selectedSquare.y = -1;
+		    	
+		    	let userName = currentBoard.userName;
 		    	currentBoard = data;
+		    	currentBoard.userName= userName;
+		    	makemove(userName);
 		    	RenderBoard(currentBoard);
 		    }
 		);
@@ -124,6 +128,7 @@ $.get(address+"/admin/getboards?token=" + adminSecret.APIkey, function(data){
 				document.getElementById("ChessBoard").display = "block";
 				currentBoard = data.board;
 				currentBoard.id = data.userId;
+				currentBoard.userName = data.userName;
 				currentBoard.playerColor = data.playerColor;
 				RenderBoard(currentBoard);
 			});
