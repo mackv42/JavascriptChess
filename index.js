@@ -108,7 +108,7 @@ app.use(function (req, res, next){
 
 app.use('/api/users', users);
 
-mongoose.connect("mongodb://localhost/test", 
+mongoose.connect(secrets.dbSecret.connectionURI, 
 {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -291,24 +291,20 @@ app.get("/admin/*", (req, res,next) =>{
     const {token} = query;
     //console.log("hit");
     if(token == secrets.adminSecret.APIkey){
-        console.log("Hello Vince!");
+        next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
     }
-    next();
-
 });
 
 app.post("/admin/*", (req, res, next) =>{
     const {token} = req.body;
 
     if(token == secrets.adminSecret.APIkey){
-        console.log("Hello Vince!")
+        next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
     }
-
-    next();
 });
 
 //get a board with particular user
@@ -339,45 +335,45 @@ app.post("/admin/makemove", (req, res, err ) => {
     let {move} = req.body;
     //console.log(board);
     ChessMatch.findOne({userId: board.id, finished: ""}, 
-            (err, currentMatch) =>{//
-                if(err || !currentMatch || currentMatch === undefined){
-                    return res.send({"message": "no board found", "success": false});
+        (err, currentMatch) =>{//
+            if(err || !currentMatch || currentMatch === undefined){
+                return res.send({"message": "no board found", "success": false});
+            } else{
+                for(let i=0; i<req.body.board.white.length; i++){
+                    req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
+                    req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
+                }
+
+                for(let i=0; i<req.body.board.black.length; i++ ){
+                    req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
+                    req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
+                }
+                if(currentMatch.playerColor == currentMatch.turn){
+                    return res.send({"message": "not your turn", "success": false});
+                }
+                let newBoard = chess.MakeMove(currentMatch.board, 
+                parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
+                parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
+
+                if(newBoard === undefined){
+                    res.send(undefined);
                 } else{
-                    for(let i=0; i<req.body.board.white.length; i++){
-                        req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
-                        req.body.board.white[i].y = parseInt(req.body.board.white[i].y, 10);
-                    }
-
-                    for(let i=0; i<req.body.board.black.length; i++ ){
-                        req.body.board.black[i].x = parseInt(req.body.board.black[i].x, 10);
-                        req.body.board.black[i].y = parseInt(req.body.board.black[i].y, 10);
-                    }
-                    if(currentMatch.playerColor == currentMatch.turn){
-                        return res.send({"message": "not your turn", "success": false});
-                    }
-                    let newBoard = chess.MakeMove(currentMatch.board, 
-                    parseInt(req.body.move.x1, 10), parseInt(req.body.move.y1, 10), 
-                    parseInt(req.body.move.x2, 10), parseInt(req.body.move.y2, 10));
-
-                    if(newBoard === undefined){
-                        res.send(undefined);
+                    if(!currentMatch || currentMatch.board === undefined){
+                        return res.send({"message": "no board found", "success": false});
+                        
                     } else{
-                        if(!currentMatch || currentMatch.board === undefined){
-                            return res.send({"message": "no board found", "success": false});
-                            
-                        } else{
-                            
-                                ChessMatch.findOneAndUpdate({userId: board.id}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
-                                    doc.save();
-                                    newBoard.playerColor = "";
-                                    newBoard.playerColor = currentMatch.playerColor;
-                                    newBoard.userId = currentMatch.userId;
-                                    return res.send(newBoard);
-                                });
-                        }
+                        
+                            ChessMatch.findOneAndUpdate({userId: board.id}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
+                                doc.save();
+                                newBoard.playerColor = "";
+                                newBoard.playerColor = currentMatch.playerColor;
+                                newBoard.userId = currentMatch.userId;
+                                return res.send(newBoard);
+                            });
                     }
                 }
-            });
+            }
+        });
 });
 
 http.listen(8080, function(){
