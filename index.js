@@ -113,7 +113,7 @@ app.use(function (req, res, next){
 
 app.use('/api/users', users);
 
-mongoose.connect(secrets.dbSecret.connectionURI, 
+mongoose.connect(process.env.mongoConnection, 
 {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -295,7 +295,7 @@ app.get("/admin/*", (req, res,next) =>{
     const {query} = req;
     const {token} = query;
     //console.log("hit");
-    if(token == secrets.adminSecret.APIkey){
+    if(token == process.env.APIkey){
         next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
