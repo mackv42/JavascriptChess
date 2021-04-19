@@ -39,7 +39,6 @@ io.on('connection',function(socket){
 /*Create socket for particular user*/
     socket.on('register', function(token){
         UserSession.findOne({_id: token}, function(err, user){
-            console.log(user);
             if(user){
                 socket.username = user.userName;
                 connectedUsers[user.userName] = socket;
@@ -65,7 +64,6 @@ io.on('connection',function(socket){
     })
 
     socket.on('makemove',function(data){
-        console.log(data);
         const to = data.to,
                 message = data.message;
         if(data.key == secrets.adminSecret.APIkey){
@@ -147,7 +145,7 @@ app.post('/requireauth/*', (req, res, next) => {
         		_id: sessions[0].userId
         	}, (err, user) =>{
         		if(err){
-        			console.log("Can not find user");
+        			res.send({"message": "error", "success": false})
         		} else{
         			console.log(user[0].email);
         			next();
@@ -343,8 +341,7 @@ app.post("/admin/makemove", (req, res, err ) => {
     ChessMatch.findOne({userId: board.id, finished: ""}, 
             (err, currentMatch) =>{//
                 if(err || !currentMatch || currentMatch === undefined){
-                    console.log(currentMatch);
-                    console.log("f");
+                    return res.send({"message": "no board found", "success": false});
                 } else{
                     for(let i=0; i<req.body.board.white.length; i++){
                         req.body.board.white[i].x = parseInt(req.body.board.white[i].x, 10);
@@ -375,7 +372,6 @@ app.post("/admin/makemove", (req, res, err ) => {
                                     newBoard.playerColor = "";
                                     newBoard.playerColor = currentMatch.playerColor;
                                     newBoard.userId = currentMatch.userId;
-                                    console.log(newBoard);
                                     return res.send(newBoard);
                                 });
                         }
