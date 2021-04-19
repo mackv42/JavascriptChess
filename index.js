@@ -9,7 +9,6 @@ const port = process.env.PORT || 3000;
 
 const bodyParser = require('body-parser');
 const users = require('./routes/signin');
-const secrets = require('./secret.js');
 
 const UserSession = require('./models/UserSession');
 const User = require('./models/User');
@@ -305,7 +304,7 @@ app.get("/admin/*", (req, res,next) =>{
 app.post("/admin/*", (req, res, next) =>{
     const {token} = req.body;
 
-    if(token == secrets.adminSecret.APIkey){
+    if(token == process.env.APIkey){
         next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
