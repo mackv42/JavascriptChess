@@ -19,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
-const http = require('http');
-http.createServer().listen(8081);
+const http = require('http').createServer(app);
+
 //const server = http.createServer(app);
 const io = require('socket.io')(http, {
     cors: {
@@ -29,14 +29,16 @@ const io = require('socket.io')(http, {
     }
 });
 
+http.listen(8080);
+
 var connectedUsers = {};
 var admin = {};
 //https://stackoverflow.com/questions/11356001/socket-io-private-message
-app.listen(port, () => {
+/*app.listen(port, () => {
     console.log('Listening on http://localhost:'+port);
 });
 
-
+*/
 
 io.on('connection',function(socket){
 /*Create socket for particular user*/
