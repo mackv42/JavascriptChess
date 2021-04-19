@@ -16,8 +16,8 @@ const ChessMatchSchema = new mongoose.Schema({
 		default: ""
 	},
 	finished: {
-		type: Boolean,
-		default: false
+		type: String,
+		default: ""
 	}
 });
 

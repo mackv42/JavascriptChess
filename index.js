@@ -180,7 +180,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
 
         let UserId = sessions[0].userId;
         let userName = sessions[0].userName;
-        ChessMatch.findOne({userId: UserId, finished: false}, 
+        ChessMatch.findOne({userId: UserId, finished: ""}, 
             (err, match) =>{
                 if(err){
                     console.log(err);
@@ -232,7 +232,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
         } else{
         	UserId = sessions[0].userId;
         	//let currentMatch = new ChessMatch();
-			ChessMatch.findOne({userId: UserId, finished: false}, 
+			ChessMatch.findOne({userId: UserId, finished: ""}, 
 		    (err, currentMatch) =>{
 		    	if(err){
 		    		console.log("f");
@@ -317,7 +317,7 @@ app.post("/admin/*", (req, res, next) =>{
 app.get("/admin/getboard", (req, res, err) => {
     const {query} = req;
     const {userId} = query;
-    ChessMatch.findOne({"userId": userId, "finished": false},
+    ChessMatch.findOne({"userId": userId, "finished": ""},
         (err, match) =>{
             res.send(match);
         }
@@ -326,7 +326,7 @@ app.get("/admin/getboard", (req, res, err) => {
 
 //sends a list of all current games
 app.get("/admin/getboards", (req, res, err) => {
-    ChessMatch.find({"finished": false}, (err, matches) =>{
+    ChessMatch.find({"finished": ""}, (err, matches) =>{
         if(err){
             res.send(err);
         } else{
@@ -340,7 +340,7 @@ app.post("/admin/makemove", (req, res, err ) => {
     let {board} = req.body;
     let {move} = req.body;
     //console.log(board);
-    ChessMatch.findOne({userId: board.id, finished: false}, 
+    ChessMatch.findOne({userId: board.id, finished: ""}, 
             (err, currentMatch) =>{//
                 if(err || !currentMatch || currentMatch === undefined){
                     console.log(currentMatch);
