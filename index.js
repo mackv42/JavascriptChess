@@ -294,7 +294,7 @@ app.get("/admin/*", (req, res,next) =>{
     const {query} = req;
     const {token} = query;
     //console.log("hit");
-    if(token == process.env.APIkey){
+    if(token == process.env.APIKey){
         next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
@@ -304,7 +304,7 @@ app.get("/admin/*", (req, res,next) =>{
 app.post("/admin/*", (req, res, next) =>{
     const {token} = req.body;
 
-    if(token == process.env.APIkey){
+    if(token == process.env.APIKey){
         next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
