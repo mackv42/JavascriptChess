@@ -3,8 +3,6 @@ const app = require('express')();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-
-
 const chess = require('./chess.js');
 
 const port = 3000;
@@ -58,9 +56,12 @@ io.on('connection',function(socket){
     });
 
     socket.on('move', function(data){
-        admin.emit("move", {
-            userName: "hello", message: "hello"
-        });
+        //is admin loggedin?
+        if(Object.keys(admin).length > 1){
+            admin.emit("move", {
+                userName: "hello", message: "hello"
+            });
+        }
     })
 
     socket.on('makemove',function(data){
@@ -155,7 +156,6 @@ app.post('/requireauth/*', (req, res, next) => {
         }
     });
 });
-
 
 app.get('/requireauth/getGame', (req, res, next) => {
     const { query } = req;
