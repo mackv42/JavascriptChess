@@ -19,7 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.raw());
 
-const http = require('http').Server(app);
+const http = require('http');
+http.createServer().listen(8081);
 //const server = http.createServer(app);
 const io = require('socket.io')(http, {
     cors: {
@@ -34,6 +35,8 @@ var admin = {};
 app.listen(port, () => {
     console.log('Listening on http://localhost:'+port);
 });
+
+
 
 io.on('connection',function(socket){
 /*Create socket for particular user*/
@@ -376,6 +379,3 @@ app.post("/admin/makemove", (req, res, err ) => {
         });
 });
 
-http.listen(8081, function(){
-    console.log("listening on port 8080");
-});
