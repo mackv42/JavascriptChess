@@ -52,7 +52,7 @@ io.on('connection',function(socket){
     });
     //create socket for admin
     socket.on('admin', function(data){
-        if(data.token == secrets.adminSecret.APIkey){
+        if(data.token == process.env.APIkey){
             admin = socket;
             
         }
@@ -70,7 +70,7 @@ io.on('connection',function(socket){
     socket.on('makemove',function(data){
         const to = data.to,
                 message = data.message;
-        if(data.key == secrets.adminSecret.APIkey){
+        if(data.key == process.env.APIKey){
             if(connectedUsers.hasOwnProperty(to)){
                 connectedUsers[to].emit('makemove',{
                     //The sender's username
