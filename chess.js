@@ -291,7 +291,6 @@ function getPossibleMoves(board){
 	}
 
 	return {"blackThreats": blackThreats, "whiteThreats": whiteThreats};
-
 }
 
 //list of threatened squares

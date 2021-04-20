@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const chess = require('./chess.js');
 
 const port = process.env.PORT || 3000;
+const secrets = require('./secrets');
 
 const bodyParser = require('body-parser');
 const users = require('./routes/signin');
@@ -104,7 +105,7 @@ app.use(function (req, res, next){
 
 app.use('/api/users', users);
 
-mongoose.connect(process.env.mongoConnection, 
+mongoose.connect(secrets.secrets.mongodbURI, 
 {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -186,7 +187,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                     if(coinFlip()){
                          board.playerColor = "white";
                     } else{
-                        board.playerColor = "black";
+                        board.playerColor = "black"; 
                     }
 
                     board.save((err, x) =>{
@@ -195,7 +196,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                             return res.send("Error")
                         } else{
                             let b = copyBoard(startingBoard);
-                            b.possibleMoves = getPossibleMoves(b);
+                            //b.possibleMoves = getPossibleMoves(b);
                            return res.send({"board": b, "playerColor": board.playerColor, "success": true});
                         }
                     });
@@ -271,7 +272,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
                                     doc.save();
                                     newBoard.playerColor = "";
                                     newBoard.playerColor = currentMatch.playerColor;
-                                    newBoard.possibleMoves = chess.getPossibleMoves(newBoard);
+                                    //newBoard.possibleMoves = chess.getPossibleMoves(newBoard);
                                     return res.send(newBoard);
                                 });
                             }
@@ -290,7 +291,7 @@ app.get("/admin/*", (req, res,next) =>{
     const {query} = req;
     const {token} = query;
     //console.log("hit");
-    if(token == process.env.APIKey){
+    if(token == secrets.secrets.APIKey){
         next();
     } else{
         return res.send({"success": false, "message": "Invalid Key!"})
