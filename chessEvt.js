@@ -13,7 +13,25 @@ canvas.onclick = function(evt){
    	if(selectedSquare.x == -1){
    		selectedSquare.x = clickData.x;
    		selectedSquare.y = clickData.y;
-   		Clear(selectedSquare);
+
+   		let possible = [];
+   		if(currentBoard.turn == "black"){
+   			let selectedPiece = currentBoard.black.filter(x => x.x == selectedSquare.x && x.y == selectedSquare.y);
+   			console.log(selectedPiece);
+   			if(selectedPiece.length > 0){
+		   		possible = possibleMoves(currentBoard, 
+		   			{"color": "black", "piece": selectedPiece[0]});
+	   		}
+   		} else{
+   			let selectedPiece = currentBoard.white.filter(x => x.x == selectedSquare.x && x.y == selectedSquare.y);
+   			console.log(selectedPiece);
+   			if(selectedPiece.length > 0){
+		   		possible = possibleMoves(currentBoard, 
+		   			{"color": "white", "piece": selectedPiece[0]});
+	   		}
+   		}
+   		console.log(possible);
+   		Clear(selectedSquare, possible);
    		RenderBoard(currentBoard);
    	} else{
 	    $.post(
@@ -26,8 +44,8 @@ canvas.onclick = function(evt){
 		    function(data){
 		    	console.log(data);
 		    	if(data === null || data === undefined || data.length == 0){
-		    		selectedSquare.x = clickData.x;
-		    		selectedSquare.y = clickData.y;
+		    		selectedSquare.x = -1;
+		    		selectedSquare.y = -1;
 		    		Clear(selectedSquare);
    					RenderBoard(currentBoard);
 		    		return;
@@ -39,7 +57,7 @@ canvas.onclick = function(evt){
 		    	Clear();
 		    	RenderBoard(currentBoard);
 
-		    		sockData.socket.emit("move", {to: "admin", message: "hi"});
+		    	sockData.socket.emit("move", {to: "admin", message: "hi"});
 		    }
 		);
 	}

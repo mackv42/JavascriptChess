@@ -6,7 +6,7 @@ function subtract2d(x1, y1, x2, y2){
 var canvas = document.getElementById("ChessBoard");
 var context = canvas.getContext("2d");
 var chessImg = new Image();
-var endpoints = {"MakeMove": address+"/requireauth/makemove"};
+var endpoints = {"MakeMove": endpoint+"/requireauth/makemove"};
 
 const squareWidth = 8;
 let currentBoard = new Object();
@@ -14,7 +14,7 @@ let selectedSquare = {"x": -1, "y": -1};
 
 let frames = [{"point1":{"x":0,"y":0},"point2":{"x":213,"y":213},"selected":false,"name":"Ki","group":"White"},{"point1":{"x":213,"y":0},"point2":{"x":426,"y":213},"selected":false,"name":"Qu","group":"White"},{"point1":{"x":426,"y":0},"point2":{"x":640,"y":213},"selected":false,"name":"Bi","group":"White"},{"point1":{"x":640,"y":0},"point2":{"x":853,"y":213},"selected":false,"name":"Kn","group":"White"},{"point1":{"x":853,"y":0},"point2":{"x":1066,"y":213},"selected":false,"name":"Ro","group":"White"},{"point1":{"x":1066,"y":0},"point2":{"x":1280,"y":213},"selected":false,"name":"Pa","group":"White"},{"point1":{"x":0,"y":213},"point2":{"x":213,"y":427},"selected":false,"name":"Ki","group":"Black"},{"point1":{"x":213,"y":213},"point2":{"x":426,"y":427},"selected":false,"name":"Qu","group":"Black"},{"point1":{"x":426,"y":213},"point2":{"x":640,"y":427},"selected":false,"name":"Bi","group":"Black"},{"point1":{"x":640,"y":213},"point2":{"x":853,"y":427},"selected":false,"name":"Kn","group":"Black"},{"point1":{"x":853,"y":213},"point2":{"x":1066,"y":427},"selected":false,"name":"Ro","group":"Black"},{"point1":{"x":1066,"y":213},"point2":{"x":1280,"y":427},"selected":true,"name":"Pa","group":"Black"}];
 
-function Clear(selected){
+function Clear(selected, possibilities){
 	let squareWidth = canvas.width / 8;
 	for(let i=0; i<8; i++){
 		for(let j=0; j<8; j++){
@@ -23,6 +23,7 @@ function Clear(selected){
 			context.lineWidth = 3;
 			context.strokeStyle = "green";
 			context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+
 			if(selected){
 				if(currentBoard.playerColor == "black"){
 					if(selected.y == j && selected.x == i){
@@ -31,6 +32,27 @@ function Clear(selected){
 				} else if(currentBoard.playerColor == "white"){
 					if(7-selected.y == j && 7-selected.x == i){
 						context.strokeRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+					}
+				}
+			}
+			if(possibilities){
+				if(possibilities.length > 0){
+					if(currentBoard.playerColor == "black"){
+						let possibleMove = possibilities.filter(x => x.x == i && x.y == j);
+						if(possibleMove.length > 0){
+							context.fillStyle = "rgba(0, 200, 0, 0.5)";
+							context.strokeRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+							context.fillRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+						}
+
+					} else if(currentBoard.playerColor == "white"){
+						let possibleMove = possibilities.filter(x => x.x == i && x.y == j);
+
+						if(possibleMove.length > 0){
+							context.fillStyle = "rgba(0, 200, 0, 0.5)";
+							context.strokeRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+							context.strokeRect(i*squareWidth , j*squareWidth, squareWidth, squareWidth);
+						}
 					}
 				}
 			}
