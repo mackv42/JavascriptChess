@@ -32,13 +32,8 @@ http.listen(8080);
 
 var connectedUsers = {};
 var admin = {};
+
 //https://stackoverflow.com/questions/11356001/socket-io-private-message
-/*app.listen(port, () => {
-    console.log('Listening on http://localhost:'+port);
-});
-
-*/
-
 io.on('connection',function(socket){
 /*Create socket for particular user*/
     socket.on('register', function(token){
@@ -83,9 +78,6 @@ io.on('connection',function(socket){
         }
     }); 
 });
-
-
-
 
 function coinFlip(){
     if(Math.floor((Math.random() * 100) % 2 == 0)){
@@ -202,7 +194,9 @@ app.get('/requireauth/getGame', (req, res, next) => {
                             console.log("error saving board");
                             return res.send("Error")
                         } else{
-                           return res.send({"board": chess.startingBoard, "playerColor": board.playerColor, "success": true});
+                            let b = copyBoard(startingBoard);
+                            b.possibleMoves = getPossibleMoves(b);
+                           return res.send({"board": b, "playerColor": board.playerColor, "success": true});
                         }
                     });
                 } else{
@@ -277,6 +271,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
                                     doc.save();
                                     newBoard.playerColor = "";
                                     newBoard.playerColor = currentMatch.playerColor;
+                                    newBoard.possibleMoves = chess.getPossibleMoves(newBoard);
                                     return res.send(newBoard);
                                 });
                             }
@@ -289,6 +284,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
 
 	console.log("UserID"+ UserId);
 });
+
 
 app.get("/admin/*", (req, res,next) =>{
     const {query} = req;
@@ -365,15 +361,14 @@ app.post("/admin/makemove", (req, res, err ) => {
                     if(!currentMatch || currentMatch.board === undefined){
                         return res.send({"message": "no board found", "success": false});
                         
-                    } else{
-                        
-                            ChessMatch.findOneAndUpdate({userId: board.id}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
-                                doc.save();
-                                newBoard.playerColor = "";
-                                newBoard.playerColor = currentMatch.playerColor;
-                                newBoard.userId = currentMatch.userId;
-                                return res.send(newBoard);
-                            });
+                    } else{           
+                        ChessMatch.findOneAndUpdate({userId: board.id}, {board: chess.copyBoard(newBoard)}).then((doc)=>{
+                            doc.save();
+                            newBoard.playerColor = "";
+                            newBoard.playerColor = currentMatch.playerColor;
+                            newBoard.userId = currentMatch.userId;
+                            return res.send(newBoard);
+                        });
                     }
                 }
             }

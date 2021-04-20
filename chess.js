@@ -266,6 +266,34 @@ function isValid(board){
 }
 
 
+function getPossibleMoves(board){
+	let whiteThreats = [];
+	let blackThreats = [];
+
+	for( let i =0; i < board.white.length; i++){
+		let possibilities = possibleMoves(board, board.white[i].x, board.white[i].y);
+		for( let j=0; j< possibilities.length; j++){
+			if(whiteThreats.filter(
+					(x) => x.x == possibilities[j].x && possibilities[j].y == x.y).length == 0){
+				blackThreats.push({"x": possibilities[j].x, "y": possibilities[j].y});
+			}
+		}
+	}
+
+	for( let i =0; i < board.black.length; i++){
+		let possibilities = possibleMoves(board, board.black[i].x, board.black[i].y);
+		for( let j=0; j< possibilities.length; j++){
+			if(blackThreats.filter(
+					(x) => x.x == possibilities[j].x && possibilities[j].y == x.y).length == 0){
+				blackThreats.push({"x": possibilities[j].x, "y": possibilities[j].y});
+			}
+		}
+	}
+
+	return {"blackThreats": blackThreats, "whiteThreats": whiteThreats};
+
+}
+
 //list of threatened squares
 function getThreats(board){
 	let whiteThreats = [];
@@ -454,6 +482,8 @@ function castle(board){
 	return possibilities;
 }
 
+
+exports.getPossibleMoves = getPossibleMoves;
 exports.copyBoard = copyBoard;
 exports.checkMate = checkMate;
 exports.staleMate = staleMate;
