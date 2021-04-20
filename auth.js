@@ -1,4 +1,4 @@
-const endpoint = "javascript-chess-7p9ri.ondigitalocean.app/api/users/";
+//const endpoint = "javascript-chess-7p9ri.ondigitalocean.app/api/users/";
 const signInPath = "signin";
 const signUpPath = "signup";
 const verifyPath = "verify";
@@ -44,15 +44,15 @@ signIn.onclick = function(evt){
 		}
 	}
 
-	axios.post("https://"+"javascript-chess-7p9ri.ondigitalocean.app/api/users/"+"signin", data).then( function(response){
+	axios.post(endpoint+"/api/users/"+"signin", data).then( function(response){
 		if(response.data.success){
 			signInData.token = response.data.token;
-			axios.get("https://javascript-chess-7p9ri.ondigitalocean.app/requireauth/getGame?token="+signInData.token).then( function(response){
+			axios.get(endpoint + "/requireauth/getGame?token="+signInData.token).then( function(response){
 				if(response.data.success){
 					currentBoard = response.data.board;
 					currentBoard.playerColor = response.data.playerColor;
+					Clear();
 					RenderBoard(response.data.board);
-
 					register(signInData.token)
 				}
 			});
@@ -70,7 +70,7 @@ signIn.onclick = function(evt){
 }
 
 function verify(token){
-	axios.get("https://"+endpoint+"verify?"+token).then( function( response ){
+	axios.get(endpoint+"verify?"+token).then( function( response ){
 		console.log("Verified");
 	});
 }

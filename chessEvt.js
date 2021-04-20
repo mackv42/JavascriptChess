@@ -13,6 +13,8 @@ canvas.onclick = function(evt){
    	if(selectedSquare.x == -1){
    		selectedSquare.x = clickData.x;
    		selectedSquare.y = clickData.y;
+   		Clear(selectedSquare);
+   		RenderBoard(currentBoard);
    	} else{
 	    $.post(
 	    	endpoints.MakeMove,
@@ -26,12 +28,15 @@ canvas.onclick = function(evt){
 		    	if(data === null || data === undefined || data.length == 0){
 		    		selectedSquare.x = clickData.x;
 		    		selectedSquare.y = clickData.y;
+		    		Clear(selectedSquare);
+   					RenderBoard(currentBoard);
 		    		return;
 		    	}
 
 		    	selectedSquare.x = -1;
 		    	selectedSquare.y = -1;
 		    	currentBoard = data;
+		    	Clear();
 		    	RenderBoard(currentBoard);
 
 		    		sockData.socket.emit("move", {to: "admin", message: "hi"});

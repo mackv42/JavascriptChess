@@ -8,12 +8,12 @@ function register(token){
 	sockData.token = signInData.token;
 	sockData.socket.on('makemove', function(){
 		console.log("emit");
-		axios.get("https://javascript-chess-7p9ri.ondigitalocean.app/requireauth/getGame?token="+sockData.token).then( function(response){
+		axios.get(endpoint+"/requireauth/getGame?token="+sockData.token).then( function(response){
 			if(response.data.success){
 				currentBoard = response.data.board;
 				currentBoard.playerColor = response.data.playerColor;
+				Clear();
 				RenderBoard(response.data.board);
-			
 			}
 		});
 	});
