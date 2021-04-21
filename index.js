@@ -195,8 +195,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                             console.log("error saving board");
                             return res.send("Error")
                         } else{
-                            let b = copyBoard(startingBoard);
-                            res.send({"board": b, "playerColor": board.playerColor, "success": true});
+                            res.send({"board": board, "playerColor": board.playerColor, "success": true});
                         }
                     });
                 } else{
@@ -260,7 +259,7 @@ app.post('/requireauth/makemove', (req, res, next) => {
                                     return res.send("Error")
                                 } else{
                                     newBoard.playerColor = board.playerColor;
-                                    res.send(newBoard);
+                                    return res.send(newBoard);
                                 }
                             });
                         } else{
