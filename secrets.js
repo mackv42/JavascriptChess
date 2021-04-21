@@ -1,5 +1,5 @@
 var secrets = {
-	"mongodbURI": process.env.mongodbURI,
+	"mongodbURI": process.env.mongoConnection,
 	"APIKey": process.env.APIKey
 }
 
