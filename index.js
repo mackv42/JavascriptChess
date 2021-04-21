@@ -196,8 +196,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                             return res.send("Error")
                         } else{
                             let b = copyBoard(startingBoard);
-                            //b.possibleMoves = getPossibleMoves(b);
-                           return res.send({"board": b, "playerColor": board.playerColor, "success": true});
+                            res.send({"board": b, "playerColor": board.playerColor, "success": true});
                         }
                     });
                 } else{
