@@ -195,7 +195,7 @@ app.get('/requireauth/getGame', (req, res, next) => {
                             console.log("error saving board");
                             return res.send("Error")
                         } else{
-                            res.send({"board": board, "playerColor": board.playerColor, "success": true});
+                            res.send({"board": board.board, "playerColor": board.playerColor, "success": true});
                         }
                     });
                 } else{
