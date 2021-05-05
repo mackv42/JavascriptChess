@@ -3,7 +3,7 @@ const User = require('../models/User');
 const UserSession = require('../models/UserSession')
 const ChessMatch = require('../models/ChessMatch');
 const chess = require('../chess.js');
-const secrets = require('.,/secrets.js');
+const secrets = require('../secrets.js');
 
 const router = express.Router();
 
