@@ -112,16 +112,3 @@ mongoose.connect(secrets.secrets.mongodbURI,
         }
     }
 );
-
-
-//. Message Controllers Here
-
-app.post("/requireauth/message", (req, res, next) =>{
-    const message = {req.body}
-    const username = {req.body}
-    const token = {req.body}
-
-    UserSession.findOne({token: token}, (err, session) =>{
-
-    });
-});
