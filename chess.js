@@ -42,7 +42,6 @@ const PieceNames = {
 	"Kn": Pieces.Knight,
 	"Ro": Pieces.Rook,
 	"Pa": Pieces.Pawn,
-	"Na": null
 }
 
 function getPiece(board, px, py){
@@ -345,26 +344,6 @@ function MakeMove(board, x1, y1, x2, y2){
 		return newBoard;
 	}
 
-	//incomplete Castling
-	/*if(isCastleAttempt(board, x1, y1, x2, y2)){
-		let castle = castle(board);
-		//castle.foreach( function(c){})
-	}*/
-
-
-	//TODO: PAWN PROMOTION
-	/*
-	let pawnOtherSide = board[board.turn].filter(function (x){
-		if(board.turn == "white"){
-			if(x.y == 7){
-				return true;
-			}
-		} else{
-			if(x.y == 0){
-				return true;
-			}
-		}
-	});*/
 
 	return undefined;
 }
